@@ -183,7 +183,7 @@ c = c.fmtc.matrix (mat="709")
 c = c.fmtc.resample (css="420")
 c = c.fmtc.bitdepth (bits=8)</pre>
 
-<p>Conversion from full range to TV-range:</p>
+<p>Conversion from full range to limited range:</p>
 
 <pre class="src">c = c.fmtc.bitdepth (fulls=True, fulld=False)</pre>
 
@@ -313,7 +313,7 @@ fmtc.bitdepth (
 <p>Dithering is performed when meeting at least one of these conditions:</p>
 <ul>
 <li>Reducing the bitdepth of integer data, or converting from float to integer.</li>
-<li>Doing a full-range ↔ TV-range conversion between integer formats, because the resulting values haven’t an exact representation.</li>
+<li>Doing a full range ↔ limited range conversion between integer formats, because the resulting values haven’t an exact representation.</li>
 </ul>
 
 <p>Video compression seems to retrain better pure ordered (Bayer) dithering.
@@ -388,22 +388,22 @@ The planes are identified by their index, as well as the following aliases:</p>
 </table>
 
 <p class="var">fulls, fulld</p>
-<p>Indicates if the clip is full-range (True) or TV-range (False).
+<p>Indicates if the clip is full range (True) or limited range (False).
 <var>fulls</var> is for input, <var>fulld</var> for output.
 Reference black and white have different values depending on the range.
 In 8 bits, pixel values scale from 0 to 255 in full range, and 16 to 235
-in TV-range (16 to 240 for the YUV chroma planes).
+in limited range (16 to 240 for the YUV chroma planes).
 This value has no meaning for float data.</p>
 <p>The default value depends on the colorspace.
-For example, full-range is assumed for RGB and YCoCg colorspaces.
-Others are assumed TV-range.
+For example, full range is assumed for RGB and YCoCg colorspaces.
+Others are assumed limited range.
 These parameters are mainly intended to guide conversions between integer
 and floating-point data.
 They can also be used for range conversions.
-Pixel values are not clipped during a conversion between two TV-range
+Pixel values are not clipped during a conversion between two limited range
 formats.</p>
 <p><span class="host">Avisynth+</span> Alpha planes are always processed
-as full-range.<p>
+as full range.<p>
 
 <p class="var">dmode</p>
 <p>Dithering mode, when applicable.</p>
@@ -691,19 +691,19 @@ IC<sub>T</sub>C<sub>P</sub> transforms from R’G’B’ require the following s
 Beware, chromatic information for pixels of the highest luminance range cannot be represented in integer IC<sub>T</sub>C<sub>P</sub> and will be clipped because of the large matrix coefficients.</p>
 
 <p class="var">fulls, fulld</p>
-<p>Indicates if the clip is full-range (True) or TV-range (False).
+<p>Indicates if the clip is full range (True) or limited range (False).
 <var>fulls</var> is for input, <var>fulld</var> for output.
 Reference black and white have different values depending on the range.
 In 8 bits, pixel values scale from 0 to 255 in full range, and 16 to 235
-in TV-range (16 to 240 for the YUV chroma planes).
+in limited range (16 to 240 for the YUV chroma planes).
 This value has no meaning for float data.</p>
 <p>The default value depends on the colorspace.
-For example, full-range is assumed for R’G’B’ and Y’Co’Cg’ colorspaces.
-Others are assumed TV-range.
+For example, full range is assumed for R’G’B’ and Y’Co’Cg’ colorspaces.
+Others are assumed limited range.
 These parameters are mainly intended to guide conversions between integer
 and floating-point data.
 They can also be used for range conversions.
-Pixel values are not clipped during a conversion between two TV-range
+Pixel values are not clipped during a conversion between two limited range
 formats.</p>
 
 <p class="var">coef</p>
@@ -831,13 +831,13 @@ The parameter is the plane index, ranging from 0 to 2.
 A negative value specifies that all planes should be processed.
 If <var>singleout</var> is &ge;&nbsp;0, it supersedes the colorspace
 family specified in <var>csp</var>.</p>
-<p>Note: when extracting a chroma plane, results between int with TV range and
-float data type may slightly differ.
+<p>Note: when extracting a chroma plane, results between int with limited
+range and float data type may slightly differ.
 This is because in float, a neutral chroma (0%) is converted to the exact
 value of a medium gray (50%).
 In integer, the chroma output value is mapped 1&ndash;1 to the luma channel.
-However in TV-range, medium gray is not located exactly at the half of the
-data range, it lies slightly below.</p>
+However in limited range, medium gray is not located exactly at the half of
+the data range, it lies slightly below.</p>
 
 <p class="var">cpuopt</p>
 <p>Limits the CPU instruction set.
@@ -916,10 +916,11 @@ Supported input formats:</p>
 supported too.<p>
 
 <p class="var">full</p>
-<p>Indicates if the Y’Cb’Cr’ clip is full-range (True) or TV-range (False).
+<p>Indicates if the Y’Cb’Cr’ clip is full range (True) or limited range
+(False).
 Reference black and white have different values depending on the range.
 In 8 bits, pixel values scale from 0 to 255 in full range, and 16 to 235
-in TV-range (16 to 240 for the YUV chroma planes).
+in limited range (16 to 240 for the YUV chroma planes).
 This value has no meaning for float data.</p>
 
 <p class="var">csp</p>
@@ -1473,7 +1474,7 @@ in Masktools 2.</p>
 <table>
 <tr><td><b>&minus;65535</b><br />to <b>&plus;0.5</b></td><td>All the pixels of the plane will be set to &minus;x (the opposite of the specified value). The range depends on the output data type. Remember, in floating-point YUV, the chroma planes range from &minus;0.5 to &plus;0.5.</td></tr>
 <tr><td><b>1</b></td><td>The plane will not be processed. This means that the content of the output plane is pure garbage.</td></tr>
-<tr><td><b>2</b></td><td>The plane of the input clip will be copied and possibly cropped. Areas out of the input picture are left unprocessed (garbage). Range (full or TV) conversions are ignored.</td></tr>
+<tr><td><b>2</b></td><td>The plane of the input clip will be copied and possibly cropped. Areas out of the input picture are left unprocessed (garbage). Range (full or limited) conversions are ignored.</td></tr>
 <tr><td><b>3</b></td><td>The plane will be processed (default).</td></tr>
 </table>
 <p><span class="host">Avisynth+</span> The parameter can also be specified as
@@ -1482,19 +1483,19 @@ See the <var>planes</var> parameter from the <code>fmtc_bitdepth</code>
 function for more details.</p>
 
 <p class="var">fulls, fulld</p>
-<p>Indicates if the clip is full-range (True) or TV-range (False).
+<p>Indicates if the clip is full range (True) or limited range (False).
 <var>fulls</var> is for input, <var>fulld</var> for output.
 Reference black and white have different values depending on the range.
 In 8 bits, pixel values scale from 0 to 255 in full range, and 16 to 235
-in TV-range (16 to 240 for the Y’Cb’Cr’ chroma planes).
+in limited range (16 to 240 for the Y’Cb’Cr’ chroma planes).
 This value has no meaning for float data.</p>
 <p>The default value depends on the colorspace.
-For example, full-range is assumed for RGB and YCoCg colorspaces.
-Others are assumed TV-range.
+For example, full range is assumed for RGB and YCoCg colorspaces.
+Others are assumed limited range.
 These parameters are mainly intended to guide conversions between integer
 and floating-point data.
 They can also be used for range conversions.
-Pixel values are not clipped during a conversion between two TV-range
+Pixel values are not clipped during a conversion between two limited range
 formats.</p>
 
 <p class="var">center</p>
@@ -1845,11 +1846,11 @@ This parameter shouldn’t conflict with flt.</p>
 or to 1 to convert to floating point data.</p>
 
 <p class="var">fulls, fulld</p>
-<p>Indicates if the clip is full-range (True) or TV-range (False).
+<p>Indicates if the clip is full range (True) or limited range (False).
 <var>fulls</var> is for input, <var>fulld</var> for output.
 Reference black and white have different values depending on the range.
 In 8 bits, pixel values scale from 0 to 255 in full range, and 16 to 235
-in TV-range (16 to 240 for the Y’Cb’Cr’ chroma planes).
+in limited range (16 to 240 for the Y’Cb’Cr’ chroma planes).
 This value has no meaning for float data.</p>
 
 <p class="var">logceis, logceid</p>
@@ -2094,7 +2095,7 @@ and 16-bit integer for <code>nativetostack16</code>.</p>
 <li><code>bitdepth</code>: added dithering <var>mode</var> 9: quasirandom sequences.</li>
 <li><code>bitdepth</code>: added a triangular probability distribution function (TPDF) for the dithering patterns and noises, along with the associated parameters <var>tpdfo</var> and <var>tpdfn</var>.</li>
 <li><code>bitdepth</code>: added <var>corplane</var> parameter to prevent colored noise in RGB processing.</li>
-<li><code>bitdepth</code>: fixed crash when trying to change the range (full or TV) without reducing the bitdepth.</li>
+<li><code>bitdepth</code>: fixed crash when trying to change the range (full or limited) without reducing the bitdepth.</li>
 <li><code>matrix</code>: deletes the <code>_Matrix</code> and <code>_ColorSpace</code> properties if a non-standard matrix is used.</li>
 <li><code>matrix2020cl</code>: sets the <code>_Matrix</code> and <code>_Transfer</code> frame properties.</li>
 <li><code>matrix2020cl</code>: fixed hideous colors when converting slightly out-of-colorspace values from integer Y’Cb’Cr’ to integer linear RGB.</li>
