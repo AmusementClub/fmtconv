@@ -164,6 +164,30 @@ ColorFamily	MatrixUtil::find_cf_from_cs (ColorSpaceH265 cs)
 
 
 
+ColorSpaceH265	MatrixUtil::fix_output_csp (ColorSpaceH265 cs)
+{
+	assert (cs >= 0);
+	assert (cs < ColorSpaceH265_NBR_ELT);
+
+	switch (cs)
+	{
+	case fmtcl::ColorSpaceH265_LMS:
+		cs = fmtcl::ColorSpaceH265_RGB;
+		break;
+	case fmtcl::ColorSpaceH265_ICTCP_PQ:
+	case fmtcl::ColorSpaceH265_ICTCP_HLG:
+		cs = fmtcl::ColorSpaceH265_ICTCP;
+		break;
+	default:
+		// Nothing to do
+		break;
+	}
+
+	return cs;
+}
+
+
+
 // Returns -1 if mat is unknown
 int	MatrixUtil::make_mat_from_str (Mat4 &m, const std::string &mat, bool to_rgb_flag)
 {

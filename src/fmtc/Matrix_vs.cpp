@@ -221,19 +221,7 @@ Matrix::Matrix (const ::VSMap &in, ::VSMap &out, void * /*user_data_ptr*/, ::VSC
 	}
 
 	// Fixes the output colorspace to a valid H265 colorspace
-	switch (_csp_out)
-	{
-	case fmtcl::ColorSpaceH265_LMS:
-		_csp_out = fmtcl::ColorSpaceH265_RGB;
-		break;
-	case fmtcl::ColorSpaceH265_ICTCP_PQ:
-	case fmtcl::ColorSpaceH265_ICTCP_HLG:
-		_csp_out = fmtcl::ColorSpaceH265_ICTCP;
-		break;
-	default:
-		// Nothing to do
-		break;
-	}
+	_csp_out = fmtcl::MatrixUtil::fix_output_csp (_csp_out);
 
 	// Sets the output colorspace accordingly
 	if (_plane_out < 0)
