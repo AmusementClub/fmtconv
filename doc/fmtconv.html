@@ -1739,6 +1739,11 @@ Use <code>bitdepth</code> to properly convert the output to a lower
 bitdepth.</p>
 <p>The signal may be clipped depending on the transfer specification or the
 domain requirement of the functions.</p>
+<p>Keep in mind that some proprietary transfer curves are intended to be used
+with integer coding in limited range (black and white at 16 and 235 in 8 bits
+or equivalent values at higher bit depth).
+Default settings scales black and white to full range, so it may be necessary
+to specify the range explicitely.</p>
 <p>The function sets the <code>_ColorRange</code> and <code>_Transfer</code>
 frame properties.</p>
 <p><span class="host">Avisynth+</span>  Colorspaces with an alpha channel are
@@ -1798,9 +1803,9 @@ cd/m<sup>2</sup>, whereas scene-referred linear scales are arbitrary.</p>
 <tr><td><b><code>&quot;1886&quot;      </code></b></td><td>0&hellip;1</td><td>EOTF</td><td>SDR</td><td>ITU-R BT.1886. Intended to mimicing a CRT display curve. Peak white is 100 cd/m<sup>2</sup>.</td></tr>
 <tr><td><b><code>&quot;1886a&quot;     </code></b></td><td>0&hellip;1</td><td>EOTF</td><td>SDR</td><td>ITU-R BT.1886, alternative approximation</td></tr>
 <tr><td><b><code>&quot;filmstream&quot;</code></b></td><td>0&hellip;1</td><td>OETF</td><td></td><td>Thomson FilmStream<br />Linear 1.0 is the sensor clipping level, corresponding to 3840 on a linear 12-bit scale.</td></tr>
-<tr><td><b><code>&quot;slog&quot;      </code></b></td><td>&minus;0.006&hellip;10</td><td>OETF</td><td></td><td>Sony S-Log<br />Linear 1.0 is the reference white, peak white is at 10.0.</td></tr>
-<tr><td><b><code>&quot;slog2&quot;     </code></b></td><td>&minus;0.0085&hellip;14.13</td><td>OETF</td><td></td><td>Sony S-Log 2<br />Linear 1.0 is the reference white, peak white is at 14.13.</td></tr>
-<tr><td><b><code>&quot;slog3&quot;     </code></b></td><td>0&hellip;38.421</td><td>OETF</td><td></td><td>Sony S-Log3.</td></tr>
+<tr><td><b><code>&quot;slog&quot;      </code></b></td><td>&minus;0.021&hellip;10.82</td><td>OETF</td><td></td><td>Sony S-Log<br />To be used in limited range on the coded side.<br />Reference white&nbsp;: 1.0 linear, 0.653 encoded. Black&nbsp;: 0.03 encoded. Peak white&nbsp;: 10.82 linear.</td></tr>
+<tr><td><b><code>&quot;slog2&quot;     </code></b></td><td>&minus;0.0295&hellip;15.287</td><td>OETF</td><td></td><td>Sony S-Log 2<br />To be used in limited range on the coded side.<br />Reference white&nbsp;: 1.0 linear, 0.591 encoded. Black&nbsp;: 0.03 encoded. Peak white&nbsp;: 15.287 linear.</td></tr>
+<tr><td><b><code>&quot;slog3&quot;     </code></b></td><td>0&hellip;38.421</td><td>OETF</td><td></td><td>Sony S-Log3<br />To be used in limited range on the coded side.<br />Reference white&nbsp;: 0.9 linear, 0.61 encoded. Black&nbsp;: 0.035 encoded. Peak white&nbsp;: 38.421 linear.</td></tr>
 <tr><td><b><code>&quot;logc2&quot;     </code></b></td><td>Unspecified</td><td>OETF</td><td></td><td>Arri Log C Alexa 2.x, linear scene exposure<br />Peak white is 57.45 linear. The negative part of the range allows coding sensor noise. <var>logceis</var> and <var>logceid</var> set the Exposure Index (EI).</td></tr>
 <tr><td><b><code>&quot;logc3&quot;     </code></b></td><td>Unspecified</td><td>OETF</td><td></td><td>Arri Log C Alexa 3.x, linear scene exposure<br />Peak white is 55.08 linear. The negative part of the range allows coding sensor noise. <var>logceis</var> and <var>logceid</var> set the Exposure Index (EI).</td></tr>
 <tr><td><b><code>&quot;logc4&quot;     </code></b></td><td>Unspecified</td><td>OETF</td><td></td><td>Arri LogC4, linear scene exposure<br />Peak white is 469.80 but this is only a hardware limit.</td></tr>
@@ -2009,11 +2014,12 @@ and 16-bit integer for <code>nativetostack16</code>.</p>
 
 <p><b>r31, 202x-xx-xx</b></p>
 <ul>
-<li><code>bitdepth</code>/Vapoursynth: can work on clips of variable frame size. The function was already designed to handle this feature, but the parameter check was more strict than necessary. Thanks to Vardë for the report.</li>
-<li><code>resample</code>: fixed 14 to 16 bit AVX2 conversion path, thanks to NSQY for the report.</li>
-<li><code>resample</code>: fixed chroma placement: U and V vertical positions for interlaced PAL-DV were swapped and vertical subsampling &gt; 2 was not handled at all. Thanks to Chortos-2 for the report.</li>
+<li><code>bitdepth</code>/Vapoursynth: Can work on clips of variable frame size. The function was already designed to handle this feature, but the parameter check was more strict than necessary. Thanks to Vardë for the report.</li>
+<li><code>resample</code>: Fixed 14 to 16 bit AVX2 conversion path, thanks to NSQY for the report.</li>
+<li><code>resample</code>: Fixed chroma placement: U and V vertical positions for interlaced PAL-DV were swapped and vertical subsampling &gt; 2 was not handled at all. Thanks to Chortos-2 for the report.</li>
 <li><code>transfer</code>: Added L* transfer function.</li>
 <li><code>transfer</code>: Added Arri LogC4 transfer function.</li>
+<li><code>transfer</code>: Rescaled the S-Log3 curve to be used with limited-range code values, like the other S-Log curves.</li>
 <li><code>primaries</code>: Added Arri Wide Gamut 4 colorspace.</li>
 <li><code>primaries</code>: Fixed white XYZ coordinates for the NTSC-J colorspace (exact D93 location), thanks to Chortos-2 for the report.</li>
 <li>Program path without x86 SIMD: fixed wrong conversions affecting a lot of functions (noticed on ARM/Apple). Thanks to SaltyChiang for the fix.</li>

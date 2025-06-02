@@ -63,8 +63,18 @@ protected:
 
 private:
 
-	static double  log_to_lin (double x);
-	static double  lin_to_log (double x);
+	static constexpr double _range = 1023.0;
+	static constexpr double _bot   =   64.0;
+	static constexpr double _black =   95.0;
+	static constexpr double _grey  =  420.0;
+	static constexpr double _white =  598.0;
+	static constexpr double _top   =  940.0;
+
+	static double  zoom_out (double x) noexcept;
+	static double  zoom_in (double x) noexcept;
+
+	static double  log_to_lin (double x) noexcept;
+	static double  lin_to_log (double x) noexcept;
 
 	const bool     _inv_flag;
 
