@@ -676,8 +676,9 @@ Use both when you want to do a conversion between BT.601 and BT.709.
 Values are the same as <var>mat</var>, with the addition of:</p>
 <table>
 <tr><td><b><code>"LMS"</code></b></td><td>Intermediate colorspace for IC<sub>T</sub>C<sub>P</sub> transforms. The LMS colorspace is conveyed on RGB planes.</td></tr>
-<tr><td><b><code>"ICtCp_PQ"</code></b></td><td>ITU-R BT.2100-2 IC<sub>T</sub>C<sub>P</sub> with perceptual quantization (PQ).</td></tr>
-<tr><td><b><code>"ICtCp_HLG"</code></b></td><td>ITU-R BT.2100-2 IC<sub>T</sub>C<sub>P</sub> with hybrid log-gamma transfer function (HLG).</td></tr>
+<tr><td><b><code>"ICtCp_PQ"</code></b></td><td>ITU-R BT.2100-2 IC<sub>T</sub>C<sub>P</sub> with perceptual quantization (PQ), to and from L’M’S’ signals.</td></tr>
+<tr><td><b><code>"ICtCp_HLG"</code></b></td><td>ITU-R BT.2100-2 IC<sub>T</sub>C<sub>P</sub> with hybrid log-gamma transfer function (HLG), to and from L’M’S’ signals.</td></tr>
+<tr><td><b><code>"IPT_C2"</code></b></td><td>SMPTE ST 2128 IPT-PQ-C2, to and from L’M’S’ signals. It is not known if these L’M’S’ signals are of the same form as the IC<sub>T</sub>C<sub>P</sub> ones.</td></tr>
 </table>
 <p>When using one of these additional values, make sure to set the other <var>mats</var> or <var>matd</var> with <code>"rgb"</code> to clarify the conversion direction.
 IC<sub>T</sub>C<sub>P</sub> transforms from R’G’B’ require the following steps:</p>
@@ -2015,6 +2016,7 @@ and 16-bit integer for <code>nativetostack16</code>.</p>
 <p><b>r31, 202x-xx-xx</b></p>
 <ul>
 <li><code>bitdepth</code>/Vapoursynth: Can work on clips of variable frame size. The function was already designed to handle this feature, but the parameter check was more strict than necessary. Thanks to Vardë for the report.</li>
+<li><code>matrix</code>: Added the SMPTE ST 2128 IPT-PQ-C2 transform to and from L’M’S’.</li>
 <li><code>resample</code>: Fixed 14 to 16 bit AVX2 conversion path, thanks to NSQY for the report.</li>
 <li><code>resample</code>: Fixed chroma placement: U and V vertical positions for interlaced PAL-DV were swapped and vertical subsampling &gt; 2 was not handled at all. Thanks to Chortos-2 for the report.</li>
 <li><code>transfer</code>: Added L* transfer function.</li>

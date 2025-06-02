@@ -31,6 +31,8 @@ namespace fmtcl
 
 
 // ITU-T H.265, High efficiency video coding, 2019-06, p. 415
+// ITU-T H.273, Coding-independent code points for video signal type
+// identification, 2024-07, pp. 13-14
 enum ColorSpaceH265
 {
 	ColorSpaceH265_UNDEF = -1,
@@ -50,6 +52,9 @@ enum ColorSpaceH265
 	ColorSpaceH265_CHRODERNCL,
 	ColorSpaceH265_CHRODERCL,
 	ColorSpaceH265_ICTCP,         // This matrix depends on the transfer characteristic
+	ColorSpaceH265_IPTC2,
+	ColorSpaceH265_YCGCORE,
+	ColorSpaceH265_YCGCORO,
 
 	ColorSpaceH265_NBR_ELT,
 

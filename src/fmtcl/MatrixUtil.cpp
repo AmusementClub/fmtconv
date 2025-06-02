@@ -111,6 +111,10 @@ ColorSpaceH265	MatrixUtil::find_cs_from_mat_str (const std::string &mat, bool al
 	{
 		cs = ColorSpaceH265_ICTCP_HLG;
 	}
+	else if (mat == "iptc2")
+	{
+		cs = ColorSpaceH265_IPTC2;
+	}
 
 	// Unknown matrix identifier
 	else
@@ -152,6 +156,9 @@ ColorFamily	MatrixUtil::find_cf_from_cs (ColorSpaceH265 cs)
 	case ColorSpaceH265_ICTCP:
 	case ColorSpaceH265_ICTCP_PQ:
 	case ColorSpaceH265_ICTCP_HLG:
+	case ColorSpaceH265_IPTC2:
+	case ColorSpaceH265_YCGCORE:
+	case ColorSpaceH265_YCGCORO:
 		cf = ColorFamily_YUV;
 		break;
 
@@ -216,6 +223,8 @@ int	MatrixUtil::make_mat_from_str (Mat4 &m, const std::string &mat, bool to_rgb_
 		make_mat_yuv (m, 0.212, 0.701, 0.087, to_rgb_flag);
 		break;
 	case ColorSpaceH265_YCGCO:
+	case ColorSpaceH265_YCGCORE:
+	case ColorSpaceH265_YCGCORO:
 		make_mat_ycgco (m, to_rgb_flag);
 		break;
 	case ColorSpaceH265_BT2020NCL:
@@ -232,6 +241,9 @@ int	MatrixUtil::make_mat_from_str (Mat4 &m, const std::string &mat, bool to_rgb_
 		break;
 	case ColorSpaceH265_ICTCP_HLG:
 		make_mat_ictcp (m, true, to_rgb_flag);
+		break;
+	case ColorSpaceH265_IPTC2:
+		make_mat_iptc2 (m, to_rgb_flag);
 		break;
 
 	// Not implemented or invalid codes
@@ -413,6 +425,33 @@ void	MatrixUtil::make_mat_ictcp (Mat4 &m, bool hlg_flag, bool to_lms_flag)
 		m3[1][0] =  6610; m3[1][1] = -13613; m3[1][2] = 7003;
 		m3[2][0] = 17933; m3[2][1] = -17390; m3[2][2] = -543;
 	}
+	m3 *= 1.0 / 4096;
+
+	if (to_lms_flag)
+	{
+		m3.invert ();
+	}
+
+	m.insert3 (m3);
+	m.clean3 (1);
+}
+
+
+
+/*
+IPT-C2 transfrom from and to LMS
+ITU-T H.273, Coding-independent code points for video signal type
+identification, 2024-07, p. 13
+
+LMS data are conveyed on RGB planes.
+*/
+
+void	MatrixUtil::make_mat_iptc2 (Mat4 &m, bool to_lms_flag)
+{
+	Mat3           m3;
+	m3[0][0] =  1638; m3[0][1] =   1638; m3[0][2] =   820;
+	m3[1][0] = 18248; m3[1][1] = -19870; m3[1][2] =  1622;
+	m3[2][0] =  3300; m3[2][1] =   1463; m3[2][2] = -4763;
 	m3 *= 1.0 / 4096;
 
 	if (to_lms_flag)

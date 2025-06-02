@@ -58,6 +58,7 @@ public:
 	static void    make_mat_ydzdx (Mat4 &m, bool to_rgb_flag);
 	static void    make_mat_lms (Mat4 &m, bool to_rgb_flag);
 	static void    make_mat_ictcp (Mat4 &m, bool hlg_flag, bool to_lms_flag);
+	static void    make_mat_iptc2 (Mat4 &m, bool to_lms_flag);
 
 	template <typename T>
 	static T       select_target_color_family (ColorSpaceH265 tmp_csp, T cf_invalid, T cf_rgb, T cf_yuv) noexcept;
