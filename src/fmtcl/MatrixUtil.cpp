@@ -154,11 +154,11 @@ ColorFamily	MatrixUtil::find_cf_from_cs (ColorSpaceH265 cs)
 	case ColorSpaceH265_CHRODERNCL:
 	case ColorSpaceH265_CHRODERCL:
 	case ColorSpaceH265_ICTCP:
-	case ColorSpaceH265_ICTCP_PQ:
-	case ColorSpaceH265_ICTCP_HLG:
 	case ColorSpaceH265_IPTC2:
 	case ColorSpaceH265_YCGCORE:
 	case ColorSpaceH265_YCGCORO:
+	case ColorSpaceH265_ICTCP_PQ:
+	case ColorSpaceH265_ICTCP_HLG:
 		cf = ColorFamily_YUV;
 		break;
 
@@ -233,6 +233,10 @@ int	MatrixUtil::make_mat_from_str (Mat4 &m, const std::string &mat, bool to_rgb_
 	case ColorSpaceH265_YDZDX:
 		make_mat_ydzdx (m, to_rgb_flag);
 		break;
+	case ColorSpaceH265_IPTC2:
+		make_mat_iptc2 (m, to_rgb_flag);
+		break;
+
 	case ColorSpaceH265_LMS:
 		make_mat_lms (m, to_rgb_flag);
 		break;
@@ -241,9 +245,6 @@ int	MatrixUtil::make_mat_from_str (Mat4 &m, const std::string &mat, bool to_rgb_
 		break;
 	case ColorSpaceH265_ICTCP_HLG:
 		make_mat_ictcp (m, true, to_rgb_flag);
-		break;
-	case ColorSpaceH265_IPTC2:
-		make_mat_iptc2 (m, to_rgb_flag);
 		break;
 
 	// Not implemented or invalid codes
