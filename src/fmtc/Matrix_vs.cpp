@@ -503,38 +503,12 @@ constexpr int	Matrix::_nbr_planes;
 
 void	Matrix::find_dst_col_fam (::VSVideoFormat &fmt_dst, fmtcl::ColorSpaceH265 tmp_csp, const ::VSVideoFormat &fmt_src, ::VSCore &core)
 {
-	int               alt_cf = -1;
+	constexpr int  cf_invalid = -1;
+	const auto     alt_cf     = fmtcl::MatrixUtil::select_target_color_family (
+		tmp_csp, cf_invalid, int (::cfRGB), int (::cfYUV)
+	);
 
-	switch (tmp_csp)
-	{
-	case fmtcl::ColorSpaceH265_RGB:
-	case fmtcl::ColorSpaceH265_BT709:
-	case fmtcl::ColorSpaceH265_FCC:
-	case fmtcl::ColorSpaceH265_BT470BG:
-	case fmtcl::ColorSpaceH265_SMPTE170M:
-	case fmtcl::ColorSpaceH265_SMPTE240M:
-	case fmtcl::ColorSpaceH265_YCGCO:
-	case fmtcl::ColorSpaceH265_BT2020NCL:
-	case fmtcl::ColorSpaceH265_BT2020CL:
-	case fmtcl::ColorSpaceH265_YDZDX:
-	case fmtcl::ColorSpaceH265_CHRODERNCL:
-	case fmtcl::ColorSpaceH265_CHRODERCL:
-	case fmtcl::ColorSpaceH265_ICTCP:
-	case fmtcl::ColorSpaceH265_ICTCP_PQ:
-	case fmtcl::ColorSpaceH265_ICTCP_HLG:
-		alt_cf = ::cfYUV;
-		break;
-
-	case fmtcl::ColorSpaceH265_LMS:
-		alt_cf = ::cfRGB;
-		break;
-
-	default:
-		// Nothing
-		break;
-	}
-
-	if (alt_cf >= 0)
+	if (alt_cf != cf_invalid)
 	{
 		int            col_fam  = fmt_dst.colorFamily;
 		int            spl_type = fmt_dst.sampleType;

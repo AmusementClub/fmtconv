@@ -212,6 +212,7 @@
     <ClInclude Include="..\..\..\src\fmtcl\Matrix2020CLProc.h" />
     <ClInclude Include="..\..\..\src\fmtcl\Matrix2020CLProc_macro.h" />
     <ClInclude Include="..\..\..\src\fmtcl\MatrixProc.h" />
+    <ClInclude Include="..\..\..\src\fmtcl\MatrixUtil.hpp" />
     <ClInclude Include="..\..\..\src\fmtcl\MatXyz2Lms.h" />
     <ClInclude Include="..\..\..\src\fmtcl\Plane.hpp" />
     <ClInclude Include="..\..\..\src\fmtcl\PlaneRO.h" />

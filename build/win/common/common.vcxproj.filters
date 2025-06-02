@@ -788,6 +788,9 @@
     <ClInclude Include="..\..\..\src\fstb\Vx32_conv.hpp">
       <Filter>fstb</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\fmtcl\MatrixUtil.hpp">
+      <Filter>fmtcl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="conc">

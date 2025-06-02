@@ -179,6 +179,7 @@ commonsrc = \
         ../../src/fmtcl/MatrixProc_macro.h \
         ../../src/fmtcl/MatrixUtil.cpp \
         ../../src/fmtcl/MatrixUtil.h \
+        ../../src/fmtcl/MatrixUtil.hpp \
         ../../src/fmtcl/MatrixWrap.h \
         ../../src/fmtcl/MatrixWrap.hpp \
         ../../src/fmtcl/MatXyz2Lms.cpp \
