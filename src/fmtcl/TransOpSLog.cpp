@@ -59,7 +59,7 @@ TransOpInterface::LinInfo	TransOpSLog::do_get_info () const
 {
 	const int      white = (_slog2_flag) ? 582 : 636;
 	return {
-		Type::UNDEF,
+		Type::OETF,
 		Range::UNDEF,
 		compute_inverse (double (1023  - 64) / double (940 - 64)),
 		compute_inverse (double (white - 64) / double (940 - 64)),

@@ -59,7 +59,7 @@ double	TransOpSLog3::do_convert (double x) const
 TransOpInterface::LinInfo	TransOpSLog3::do_get_info () const
 {
 	return {
-		Type::UNDEF,
+		Type::OETF,
 		Range::UNDEF,
 		log_to_lin (1.0),
 		log_to_lin (598.0 / 1023.0),

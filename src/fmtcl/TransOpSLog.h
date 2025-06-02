@@ -3,6 +3,10 @@
         TransOpSLog.h
         Author: Laurent de Soras, 2015
 
+Ref:
+S-Log2 Technical Paper
+https://paperzz.com/doc/9135005/s-log2-technical-paper
+
 --- Legal stuff ---
 
 This program is free software. It comes without any warranty, to

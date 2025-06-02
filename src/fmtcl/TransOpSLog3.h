@@ -3,6 +3,10 @@
         TransOpSLog3.h
         Author: Laurent de Soras, 2016
 
+Ref:
+Technical Summary for S-Gamut3.Cine/S-Log3 and S-Gamut3/S-Log3
+https://pro.sony/s3/cms-static-content/uploadfile/06/1237494271406.pdf
+
 --- Legal stuff ---
 
 This program is free software. It comes without any warranty, to
