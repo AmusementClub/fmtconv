@@ -773,6 +773,21 @@
     <ClInclude Include="..\..\..\src\fmtcl\TransOpLogC4.h">
       <Filter>fmtcl</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\fstb\bit_cast.h">
+      <Filter>fstb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\fstb\Vf32Native.h">
+      <Filter>fstb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\fstb\Vs32Native.h">
+      <Filter>fstb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\fstb\Vu32Native.h">
+      <Filter>fstb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\fstb\Vx32_conv.hpp">
+      <Filter>fstb</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="conc">

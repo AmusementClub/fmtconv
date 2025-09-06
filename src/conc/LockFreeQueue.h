@@ -36,13 +36,9 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 
 
 
+#pragma once
 #if ! defined (conc_LockFreeQueue_HEADER_INCLUDED)
 #define	conc_LockFreeQueue_HEADER_INCLUDED
-
-#if defined (_MSC_VER)
-	#pragma once
-	#pragma warning (4 : 4250)
-#endif
 
 
 
@@ -69,8 +65,8 @@ class LockFreeQueue
 
 public:
 
-	typedef	T	ValueType;
-	typedef	LockFreeCell <T>	CellType;
+	typedef T ValueType;
+	typedef LockFreeCell <T> CellType;
 
 	               LockFreeQueue ();
 	virtual        ~LockFreeQueue () = default;
@@ -90,11 +86,9 @@ protected:
 
 private:
 
-	typedef	void *	InternalType;
+	typedef void * InternalType;
 
-	static const int  SL2 = (sizeof (InternalType) == 8) ? 4 : 3;
-
-	typedef	AtomicPtrIntPair <CellType>	SafePointer;
+	typedef AtomicPtrIntPair <CellType> SafePointer;
 
 	class Members	// Must be aligned
 	{

@@ -15,13 +15,6 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 
 
 
-#if defined (_MSC_VER)
-	#pragma warning (1 : 4130 4223 4705 4706)
-	#pragma warning (4 : 4355 4786 4800)
-#endif
-
-
-
 /*\\\ INCLUDE FILES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
 
 #include "fstb/def.h"
@@ -63,7 +56,7 @@ PlaneProcessor::PlaneProcessor (const ::VSAPI &vsapi, PlaneProcCbInterface &cb, 
 ,	_input_flag (false)
 ,	_blank_frame_sptr ()
 {
-	assert (filter_name_0 != 0);
+	assert (filter_name_0 != nullptr);
 }
 
 
@@ -73,8 +66,8 @@ void	PlaneProcessor::set_filter (const ::VSMap &in, ::VSMap &out, const ::VSVide
 {
 	fstb::unused (clip_name_0);
 	assert (max_def_planes > 0);
-	assert (prop_name_0 != 0);
-	assert (clip_name_0 != 0);
+	assert (prop_name_0 != nullptr);
+	assert (clip_name_0 != nullptr);
 
 	int            err = 0;
 
@@ -284,7 +277,7 @@ int	PlaneProcessor::process_frame (::VSFrame &dst, int n, void *frame_data_ptr, 
 				  (mode_i == PlaneProcMode_COPY3) ? src_node3_sptr
 				: (mode_i == PlaneProcMode_COPY2) ? src_node2_sptr
 				:                                   src_node1_sptr);
-			if (src_clip_sptr.get () != 0)
+			if (src_clip_sptr.get () != nullptr)
 			{
 				FrameRefSPtr   src_sptr (
 					_vsapi.getFrameFilter (n, src_clip_sptr.get (), &frame_ctx),

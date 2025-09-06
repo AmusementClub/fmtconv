@@ -163,6 +163,7 @@ Mat3 &	Mat3::operator *= (double scale)
 constexpr double	Mat3::det () const
 {
 	const Mat3 &   m = *this;
+#if 1
 	return
 		  m [0] [0] * m [1] [1] * m [2] [2]
 		+ m [1] [0] * m [2] [1] * m [0] [2]
@@ -170,6 +171,19 @@ constexpr double	Mat3::det () const
 		- m [0] [0] * m [2] [1] * m [1] [2]
 		- m [1] [0] * m [0] [1] * m [2] [2]
 		- m [2] [0] * m [1] [1] * m [0] [2];
+#else
+	/*** To do: check the following formula (precision, speed) ***/
+	// Less mul, more add. Source:
+	// Robin Houston, Adam P. Goucher, Nathaniel Johnston,
+	// A New Formula for the Determinant and Bounds on Its Tensor and Waring Ranks,
+	// 2023-01-16
+	return
+		  (m [0] [1] +  m [0] [2]) * (m [1] [0]  + m [1] [2]) * (m [2] [0] + m [2] [1])
+		-  m [0] [1] *  m [1] [0]  * (m [2] [0]  + m [2] [1]  +  m [2] [2])
+		-  m [0] [2] * (m [1] [0]  +  m [1] [1]  + m [1] [2]) *  m [2] [0]
+		- (m [0] [0] +  m [0] [1]  +  m [0] [2]) * m [1] [2]  *  m [2] [1]
+		+  m [0] [0] *  m [1] [1]  *  m [2] [2];
+#endif
 }
 
 

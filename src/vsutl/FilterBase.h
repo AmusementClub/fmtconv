@@ -15,13 +15,9 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 
 
 
+#pragma once
 #if ! defined (vsutl_FilterBase_HEADER_INCLUDED)
 #define	vsutl_FilterBase_HEADER_INCLUDED
-
-#if defined (_MSC_VER)
-	#pragma once
-	#pragma warning (4 : 4250)
-#endif
 
 
 
@@ -59,17 +55,17 @@ public:
 
 	bool           is_arg_defined (const ::VSMap &in, const char name_0 []) const;
 
-	int            get_arg_int (const ::VSMap &in, ::VSMap &out, const char name_0 [], int def_val, int pos = 0, bool *defined_ptr = 0) const;
-	double         get_arg_flt (const ::VSMap &in, ::VSMap &out, const char name_0 [], double def_val, int pos = 0, bool *defined_ptr = 0) const;
-	std::string    get_arg_str (const ::VSMap &in, ::VSMap &out, const char name_0 [], std::string def_val, int pos = 0, bool *defined_ptr = 0) const;
-	std::function<double(double)> get_arg_func (const ::VSMap &in, ::VSMap &out, const char name_0 [], int pos = 0, bool *defined_ptr = 0) const;
+	int            get_arg_int (const ::VSMap &in, ::VSMap &out, const char name_0 [], int def_val, int pos = 0, bool *defined_ptr = nullptr) const;
+	double         get_arg_flt (const ::VSMap &in, ::VSMap &out, const char name_0 [], double def_val, int pos = 0, bool *defined_ptr = nullptr) const;
+	std::string    get_arg_str (const ::VSMap &in, ::VSMap &out, const char name_0 [], std::string def_val, int pos = 0, bool *defined_ptr = nullptr) const;
+	std::function<double(double)> get_arg_func (const ::VSMap &in, ::VSMap &out, const char name_0 [], int pos = 0, bool *defined_ptr = nullptr) const;
 
 	std::vector <int>
-	               get_arg_vint (const ::VSMap &in, ::VSMap &out, const char name_0 [], const std::vector <int> &def_val, bool *defined_ptr = 0) const;
+	               get_arg_vint (const ::VSMap &in, ::VSMap &out, const char name_0 [], const std::vector <int> &def_val, bool *defined_ptr = nullptr) const;
 	std::vector <double>
-	               get_arg_vflt (const ::VSMap &in, ::VSMap &out, const char name_0 [], const std::vector <double> &def_val, bool *defined_ptr = 0) const;
+	               get_arg_vflt (const ::VSMap &in, ::VSMap &out, const char name_0 [], const std::vector <double> &def_val, bool *defined_ptr = nullptr) const;
 	std::vector <std::string>
-	               get_arg_vstr (const ::VSMap &in, ::VSMap &out, const char name_0 [], const std::vector <std::string> &def_val, bool *defined_ptr = 0) const;
+	               get_arg_vstr (const ::VSMap &in, ::VSMap &out, const char name_0 [], const std::vector <std::string> &def_val, bool *defined_ptr = nullptr) const;
 
 	void           throw_inval_arg (const char msg_0 []) const;
 	void           throw_rt_err (const char msg_0 []) const;

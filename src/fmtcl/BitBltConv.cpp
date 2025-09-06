@@ -19,13 +19,6 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 
 
 
-#if defined (_MSC_VER)
-	#pragma warning (1 : 4130 4223 4705 4706)
-	#pragma warning (4 : 4355 4786 4800)
-#endif
-
-
-
 /*\\\ INCLUDE FILES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
 
 #include "fstb/def.h"
@@ -678,7 +671,9 @@ void	BitBltConv::bitblt_ixx_to_x16_sse2 (typename DST::Ptr::Type dst_ptr, ptrdif
 	dst_stride /= sizeof (typename DST::Ptr::DataType);
 
 	const __m128i  zero     = _mm_setzero_si128 ();
-	const __m128i  val_ma   = _mm_set1_epi16 ((DBD < 16) ? (1 << DBD) - 1 : 0);
+	const __m128i  val_ma   = _mm_set1_epi16 (
+		(DBD < 16) ? static_cast <int16_t> ((1 << DBD) - 1) : 0
+	);
 	const __m128i  mask_lsb = _mm_set1_epi16 (0x00FF);
 
 	const int      w8 = w & -8;

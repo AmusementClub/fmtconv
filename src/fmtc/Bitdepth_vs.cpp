@@ -15,13 +15,6 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 
 
 
-#if defined (_MSC_VER)
-	#pragma warning (1 : 4130 4223 4705 4706)
-	#pragma warning (4 : 4355 4786 4800)
-#endif
-
-
-
 /*\\\ INCLUDE FILES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
 
 #include "fmtc/Bitdepth.h"
@@ -68,9 +61,9 @@ Bitdepth::Bitdepth (const ::VSMap &in, ::VSMap &out, void *user_data_ptr, ::VSCo
 	const bool     avx2_flag = cpu_opt.has_avx2 ();
 
 	// Checks the input clip
-	if (! vsutl::is_constant_format (_vi_in))
+	if (! vsutl::is_constant_colorspace (_vi_in))
 	{
-		throw_inval_arg ("only constant pixel formats are supported.");
+		throw_inval_arg ("only constant colorspace are supported.");
 	}
 
 	// Source colorspace

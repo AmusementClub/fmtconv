@@ -23,21 +23,10 @@ http://www.wtfpl.net/ for more details.
 
 /*\\\ INCLUDE FILES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
 
-#include "fstb/def.h"
-
-#if ! defined (fstb_HAS_SIMD)
-	#include <array>
-#elif (fstb_ARCHI == fstb_ARCHI_X86)
-	#include <emmintrin.h>
-#elif (fstb_ARCHI == fstb_ARCHI_ARM)
-	#include <arm_neon.h>
-#else
-	#error
-#endif
+#include "fstb/bit_cast.h"
+#include "fstb/Vs32Native.h"
 
 #include <tuple>
-
-#include <cstdint>
 
 
 
@@ -46,23 +35,8 @@ namespace fstb
 
 
 
-#if ! defined (fstb_HAS_SIMD)
-
-typedef std::array <int32_t, 4> Vs32Native;
-
-#elif fstb_ARCHI == fstb_ARCHI_X86
-
-typedef __m128i   Vs32Native;
-
-#elif fstb_ARCHI == fstb_ARCHI_ARM
-
-typedef int32x4_t Vs32Native;
-
-#else // fstb_ARCHI
-#error
-#endif // fstb_ARCHI
-
-
+class Vf32;
+class Vu32;
 
 class Vs32
 {
@@ -74,10 +48,15 @@ public:
 	static constexpr int _len_l2 = 2;
 	static constexpr int _length = 1 << _len_l2;
 	typedef int32_t Scalar;
+	typedef Vs32Native Native;
 
 	               Vs32 ()                        = default;
    fstb_FORCEINLINE
 	               Vs32 (Vs32Native a) noexcept : _x { a } {}
+   explicit fstb_FORCEINLINE // Defined in Vx32_conv.hpp
+	               Vs32 (const Vf32 &f) noexcept;
+   explicit fstb_FORCEINLINE // Defined in Vx32_conv.hpp
+	               Vs32 (const Vu32 &u) noexcept;
    explicit fstb_FORCEINLINE
 	               Vs32 (Scalar a) noexcept;
 	explicit fstb_FORCEINLINE
@@ -182,6 +161,15 @@ public:
 	static fstb_FORCEINLINE Vs32
 	               loadu (const MEM *ptr) noexcept;
 
+	static fstb_FORCEINLINE Vs32 *
+	               ptr_v (Scalar *ptr) noexcept;
+	static fstb_FORCEINLINE const Vs32 *
+	               ptr_v (const Scalar *ptr) noexcept;
+	static fstb_FORCEINLINE Scalar *
+	               ptr_s (Vs32 *ptr) noexcept;
+	static fstb_FORCEINLINE const Scalar *
+	               ptr_s (const Vs32 *ptr) noexcept;
+
 
 
 /*\\\ PROTECTED \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
@@ -239,6 +227,12 @@ fstb_FORCEINLINE Vs32 max (const Vs32 &lhs, const Vs32 &rhs) noexcept;
 fstb_FORCEINLINE Vs32 limit (const Vs32 &v, const Vs32 &mi, const Vs32 &ma) noexcept;
 fstb_FORCEINLINE Vs32 select (const Vs32 &cond, const Vs32 &v_t, const Vs32 &v_f) noexcept;
 fstb_FORCEINLINE std::tuple <Vs32, Vs32> swap_if (const Vs32 &cond, Vs32 lhs, Vs32 rhs) noexcept;
+
+// Defined in Vx32_conv.hpp
+template <>
+fstb_FLATINLINE Vs32 bit_cast (const Vf32 &x) noexcept;
+template <>
+fstb_FLATINLINE Vs32 bit_cast (const Vu32 &x) noexcept;
 
 
 

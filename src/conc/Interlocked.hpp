@@ -340,11 +340,6 @@ bool	Interlocked::Data128::operator != (const Data128 & other) const noexcept
 
 
 
-#if defined (_MSC_VER)
-	#pragma warning (push)
-	#pragma warning (4 : 4311 4312)
-#endif
-
 void *	Interlocked::swap (void * volatile &dest_ptr, void *excg_ptr) noexcept
 {
 	// We cannot just cast void * to IntPtr and relying on it to match
@@ -383,10 +378,6 @@ void *	Interlocked::cas (void * volatile &dest_ptr, void *excg_ptr, void *comp_p
 		)
 	));
 }
-
-#if defined (_MSC_VER)
-	#pragma warning (pop)
-#endif
 
 
 

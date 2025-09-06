@@ -15,13 +15,6 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 
 
 
-#if defined (_MSC_VER)
-	#pragma warning (1 : 4130 4223 4705 4706)
-	#pragma warning (4 : 4355 4786 4800)
-#endif
-
-
-
 /*\\\ INCLUDE FILES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
 
 #include "fstb/fnc.h"
@@ -93,7 +86,7 @@ void	FilterBase::throw_logic_err (const char msg_0 []) const
 
 bool	FilterBase::is_arg_defined (const ::VSMap &in, const char name_0 []) const
 {
-	assert (name_0 != 0);
+	assert (name_0 != nullptr);
 
 	const int      nbr_elt = _vsapi.mapNumElements (&in, name_0);
 
@@ -104,10 +97,10 @@ bool	FilterBase::is_arg_defined (const ::VSMap &in, const char name_0 []) const
 
 int	FilterBase::get_arg_int (const ::VSMap &in, ::VSMap &out, const char name_0 [], int def_val, int pos, bool *defined_ptr) const
 {
-	assert (name_0 != 0);
+	assert (name_0 != nullptr);
 
 	const bool     defined_flag = is_arg_defined (in, name_0);
-	if (defined_ptr != 0)
+	if (defined_ptr != nullptr)
 	{
 		*defined_ptr = defined_flag;
 	}
@@ -127,10 +120,10 @@ int	FilterBase::get_arg_int (const ::VSMap &in, ::VSMap &out, const char name_0 
 
 double	FilterBase::get_arg_flt (const ::VSMap &in, ::VSMap &out, const char name_0 [], double def_val, int pos, bool *defined_ptr) const
 {
-	assert (name_0 != 0);
+	assert (name_0 != nullptr);
 
 	const bool     defined_flag = is_arg_defined (in, name_0);
-	if (defined_ptr != 0)
+	if (defined_ptr != nullptr)
 	{
 		*defined_ptr = defined_flag;
 	}
@@ -150,10 +143,10 @@ double	FilterBase::get_arg_flt (const ::VSMap &in, ::VSMap &out, const char name
 
 std::string	FilterBase::get_arg_str (const ::VSMap &in, ::VSMap &out, const char name_0 [], std::string def_val, int pos, bool *defined_ptr) const
 {
-	assert (name_0 != 0);
+	assert (name_0 != nullptr);
 
 	const bool     defined_flag = is_arg_defined (in, name_0);
-	if (defined_ptr != 0)
+	if (defined_ptr != nullptr)
 	{
 		*defined_ptr = defined_flag;
 	}
@@ -164,7 +157,7 @@ std::string	FilterBase::get_arg_str (const ::VSMap &in, ::VSMap &out, const char
 		clip_neg_arg_pos (pos, in, name_0);
 		const char *   tmp_0_ptr = _vsapi.mapGetData (&in, name_0, pos, &err);
 		test_arg_err (out, name_0, err);
-		assert (tmp_0_ptr != 0);
+		assert (tmp_0_ptr != nullptr);
 		def_val = tmp_0_ptr;
 	}
 
@@ -242,12 +235,12 @@ std::function<double(double)> FilterBase::get_arg_func (const ::VSMap &in, ::VSM
 
 std::vector <int>	FilterBase::get_arg_vint (const ::VSMap &in, ::VSMap &out, const char name_0 [], const std::vector <int> &def_val, bool *defined_ptr) const
 {
-	assert (name_0 != 0);
+	assert (name_0 != nullptr);
 
 	std::vector <int> vec;
 	const int      nbr_elt = _vsapi.mapNumElements (&in, name_0);
 	const bool     defined_flag = (nbr_elt >= 0);
-	if (defined_ptr != 0)
+	if (defined_ptr != nullptr)
 	{
 		*defined_ptr = defined_flag;
 	}
@@ -274,12 +267,12 @@ std::vector <int>	FilterBase::get_arg_vint (const ::VSMap &in, ::VSMap &out, con
 
 std::vector <double>	FilterBase::get_arg_vflt (const ::VSMap &in, ::VSMap &out, const char name_0 [], const std::vector <double> &def_val, bool *defined_ptr) const
 {
-	assert (name_0 != 0);
+	assert (name_0 != nullptr);
 
 	std::vector <double> vec;
 	const int      nbr_elt = _vsapi.mapNumElements (&in, name_0);
 	const bool     defined_flag = (nbr_elt >= 0);
-	if (defined_ptr != 0)
+	if (defined_ptr != nullptr)
 	{
 		*defined_ptr = defined_flag;
 	}
@@ -306,12 +299,12 @@ std::vector <double>	FilterBase::get_arg_vflt (const ::VSMap &in, ::VSMap &out, 
 
 std::vector <std::string>	FilterBase::get_arg_vstr (const ::VSMap &in, ::VSMap &out, const char name_0 [], const std::vector <std::string> &def_val, bool *defined_ptr) const
 {
-	assert (name_0 != 0);
+	assert (name_0 != nullptr);
 
 	std::vector <std::string>  vec;
 	const int      nbr_elt = _vsapi.mapNumElements (&in, name_0);
 	const bool     defined_flag = (nbr_elt >= 0);
-	if (defined_ptr != 0)
+	if (defined_ptr != nullptr)
 	{
 		*defined_ptr = defined_flag;
 	}
@@ -398,7 +391,7 @@ bool	FilterBase::register_format (::VSVideoFormat &fmt, int color_family, int sa
 
 void  FilterBase::clip_neg_arg_pos (int &pos, const ::VSMap &in, const char name_0 []) const
 {
-	assert (name_0 != 0);
+	assert (name_0 != nullptr);
 
 	if (pos < 0)
 	{
@@ -412,7 +405,7 @@ void  FilterBase::clip_neg_arg_pos (int &pos, const ::VSMap &in, const char name
 
 void	FilterBase::test_arg_err (::VSMap &out, const char name_0 [], int err) const
 {
-	assert (name_0 != 0);
+	assert (name_0 != nullptr);
 
 	if (err != 0)
 	{
@@ -433,7 +426,7 @@ void	FilterBase::test_arg_err (::VSMap &out, const char name_0 [], int err) cons
 
 void	FilterBase::throw_generic (const char msg_0 [], ExceptionType e) const
 {
-	assert (msg_0 != 0);
+	assert (msg_0 != nullptr);
 	assert (e >= 0);
 	assert (e < ExceptionType_NBR_ELT);
 

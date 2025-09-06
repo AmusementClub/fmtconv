@@ -3,6 +3,17 @@
         SingleObj.h
         Author: Laurent de Soras, 2015
 
+Wrapper around an object stored on the heap using a custom allocator.
+Uses the pointer semantic.
+
+Template parameters:
+
+- T: class to wrap. Requires:
+	any ctor
+	T::~T ();
+
+- A: allocator class for the object. Requires allocate() and deallocate().
+
 --- Legal stuff ---
 
 This program is free software. It comes without any warranty, to
@@ -18,10 +29,6 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 #pragma once
 #if ! defined (fstb_SingleObj_HEADER_INCLUDED)
 #define	fstb_SingleObj_HEADER_INCLUDED
-
-#if defined (_MSC_VER)
-	#pragma warning (4 : 4250)
-#endif
 
 
 
@@ -44,7 +51,8 @@ class SingleObj
 
 public:
 
-	               SingleObj ();
+	template <typename... U>
+	               SingleObj (U... args);
 	virtual        ~SingleObj ();
 
 	T *            operator -> () const noexcept;

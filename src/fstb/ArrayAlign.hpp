@@ -28,38 +28,12 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 #include <type_traits>
 
 #include <cassert>
+#include <cstddef>
 
 
 
 namespace fstb
 {
-
-
-
-template <bool D>
-class DestroyAux
-{
-public:
-	template <typename T>
-	static inline void
-	               destroy_elt (T *ptr)
-	{
-		ptr->~T ();
-	}
-};
-
-template <>
-class DestroyAux <true>
-{
-public:
-	template <typename T>
-	static inline void
-	               destroy_elt (T *ptr)
-	{
-		// Nothing
-		fstb::unused (ptr);
-	}
-};
 
 
 
@@ -69,14 +43,12 @@ public:
 
 template <typename T, long LEN, long AL>
 ArrayAlign <T, LEN, AL>::ArrayAlign ()
-:/*	_data ()
-,*/	_data_ptr (0)
 {
 	_data_ptr = reinterpret_cast <Element *> (
-		reinterpret_cast <ptrdiff_t> (&_data [ALIGNMENT - 1]) & -ALIGNMENT
+		reinterpret_cast <ptrdiff_t> (&_data [_alignment - 1]) & -_alignment
 	);
 
-	for (long pos = 0; pos < NBR_ELT; ++pos)
+	for (long pos = 0; pos < _nbr_elt; ++pos)
 	{
 		new (&_data_ptr [pos]) Element ();
 	}
@@ -86,14 +58,12 @@ ArrayAlign <T, LEN, AL>::ArrayAlign ()
 
 template <typename T, long LEN, long AL>
 ArrayAlign <T, LEN, AL>::ArrayAlign (const ArrayAlign <T, LEN, AL> &other)
-:/*	_data ()
-,*/	_data_ptr (0)
 {
 	_data_ptr = reinterpret_cast <Element *> (
-		reinterpret_cast <ptrdiff_t> (&_data [ALIGNMENT - 1]) & -ALIGNMENT
+		reinterpret_cast <ptrdiff_t> (&_data [_alignment - 1]) & -_alignment
 	);
 
-	for (long pos = 0; pos < NBR_ELT; ++pos)
+	for (long pos = 0; pos < _nbr_elt; ++pos)
 	{
 		new (&_data_ptr [pos]) Element (other [pos]);
 	}
@@ -104,14 +74,15 @@ ArrayAlign <T, LEN, AL>::ArrayAlign (const ArrayAlign <T, LEN, AL> &other)
 template <typename T, long LEN, long AL>
 ArrayAlign <T, LEN, AL>::~ArrayAlign ()
 {
-	assert (_data_ptr != 0);
+	assert (_data_ptr != nullptr);
 
-	for (long pos = 0; pos < NBR_ELT; ++pos)
+	if constexpr (! std::is_trivially_destructible_v <Element>)
 	{
-		Element *   ptr =
-			reinterpret_cast <Element *> (&_data_ptr [pos]);
-		typedef DestroyAux <std::is_trivially_destructible <Element>::value> Destr;
-		Destr::destroy_elt (ptr);
+		for (long pos = 0; pos < _nbr_elt; ++pos)
+		{
+			Element *   ptr = reinterpret_cast <Element *> (&_data_ptr [pos]);
+			ptr->~T ();
+		}
 	}
 }
 
@@ -122,7 +93,7 @@ ArrayAlign <T, LEN, AL> &	ArrayAlign <T, LEN, AL>::operator = (const ArrayAlign 
 {
 	if (this != &other)
 	{
-		for (long pos = 0; pos < NBR_ELT; ++pos)
+		for (long pos = 0; pos < _nbr_elt; ++pos)
 		{
 			(*this) [pos] = other [pos];
 		}
@@ -136,9 +107,9 @@ ArrayAlign <T, LEN, AL> &	ArrayAlign <T, LEN, AL>::operator = (const ArrayAlign 
 template <typename T, long LEN, long AL>
 const typename ArrayAlign <T, LEN, AL>::Element &	ArrayAlign <T, LEN, AL>::operator [] (long pos) const noexcept
 {
-	assert (_data_ptr != 0);
+	assert (_data_ptr != nullptr);
 	assert (pos >= 0);
-	assert (pos < NBR_ELT);
+	assert (pos < _nbr_elt);
 
 	return _data_ptr [pos];
 }
@@ -148,9 +119,9 @@ const typename ArrayAlign <T, LEN, AL>::Element &	ArrayAlign <T, LEN, AL>::opera
 template <typename T, long LEN, long AL>
 typename ArrayAlign <T, LEN, AL>::Element &	ArrayAlign <T, LEN, AL>::operator [] (long pos) noexcept
 {
-	assert (_data_ptr != 0);
+	assert (_data_ptr != nullptr);
 	assert (pos >= 0);
-	assert (pos < NBR_ELT);
+	assert (pos < _nbr_elt);
 
 	return _data_ptr [pos];
 }
@@ -160,7 +131,7 @@ typename ArrayAlign <T, LEN, AL>::Element &	ArrayAlign <T, LEN, AL>::operator []
 template <typename T, long LEN, long AL>
 const typename ArrayAlign <T, LEN, AL>::Element *	ArrayAlign <T, LEN, AL>::data () const noexcept
 {
-	assert (_data_ptr != 0);
+	assert (_data_ptr != nullptr);
 
 	return _data_ptr;
 }
@@ -170,7 +141,7 @@ const typename ArrayAlign <T, LEN, AL>::Element *	ArrayAlign <T, LEN, AL>::data 
 template <typename T, long LEN, long AL>
 typename ArrayAlign <T, LEN, AL>::Element *	ArrayAlign <T, LEN, AL>::data () noexcept
 {
-	assert (_data_ptr != 0);
+	assert (_data_ptr != nullptr);
 
 	return _data_ptr;
 }
@@ -180,7 +151,7 @@ typename ArrayAlign <T, LEN, AL>::Element *	ArrayAlign <T, LEN, AL>::data () noe
 template <typename T, long LEN, long AL>
 long	ArrayAlign <T, LEN, AL>::size () noexcept
 {
-	return NBR_ELT;
+	return _nbr_elt;
 }
 
 
@@ -188,7 +159,7 @@ long	ArrayAlign <T, LEN, AL>::size () noexcept
 template <typename T, long LEN, long AL>
 long	ArrayAlign <T, LEN, AL>::length () noexcept
 {
-	return NBR_ELT;
+	return _nbr_elt;
 }
 
 
@@ -196,7 +167,7 @@ long	ArrayAlign <T, LEN, AL>::length () noexcept
 template <typename T, long LEN, long AL>
 long	ArrayAlign <T, LEN, AL>::get_alignment () noexcept
 {
-	return ALIGNMENT;
+	return _alignment;
 }
 
 

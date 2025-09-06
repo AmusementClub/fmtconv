@@ -23,21 +23,10 @@ http://www.wtfpl.net/ for more details.
 
 /*\\\ INCLUDE FILES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
 
-#include "fstb/def.h"
-
-#if ! defined (fstb_HAS_SIMD)
-	#include <array>
-#elif (fstb_ARCHI == fstb_ARCHI_X86)
-	#include <emmintrin.h>
-#elif (fstb_ARCHI == fstb_ARCHI_ARM)
-	#include <arm_neon.h>
-#else
-	#error
-#endif
+#include "fstb/bit_cast.h"
+#include "fstb/Vu32Native.h"
 
 #include <tuple>
-
-#include <cstdint>
 
 
 
@@ -46,23 +35,8 @@ namespace fstb
 
 
 
-#if ! defined (fstb_HAS_SIMD)
-
-typedef std::array <uint32_t, 4> Vu32Native;
-
-#elif fstb_ARCHI == fstb_ARCHI_X86
-
-typedef __m128i   Vu32Native;
-
-#elif fstb_ARCHI == fstb_ARCHI_ARM
-
-typedef uint32x4_t Vu32Native;
-
-#else // fstb_ARCHI
-#error
-#endif // fstb_ARCHI
-
-
+class Vf32;
+class Vs32;
 
 class Vu32
 {
@@ -74,11 +48,16 @@ public:
 	static constexpr int _len_l2 = 2;
 	static constexpr int _length = 1 << _len_l2;
 	typedef uint32_t Scalar;
+	typedef Vu32Native Native;
 
 	               Vu32 ()                        = default;
-   fstb_FORCEINLINE
+	fstb_FORCEINLINE
 	               Vu32 (Vu32Native a) noexcept : _x { a } {}
-   explicit fstb_FORCEINLINE
+	explicit fstb_FORCEINLINE // Defined in Vx32_conv.hpp
+	               Vu32 (const Vf32 &f) noexcept;
+	explicit fstb_FORCEINLINE // Defined in Vx32_conv.hpp
+	               Vu32 (const Vs32 &s) noexcept;
+	explicit fstb_FORCEINLINE
 	               Vu32 (Scalar a) noexcept;
 	explicit fstb_FORCEINLINE
 	               Vu32 (Scalar a0, Scalar a1, Scalar a2, Scalar a3) noexcept;
@@ -184,6 +163,15 @@ public:
 	static fstb_FORCEINLINE Vu32
 	               loadu (const MEM *ptr) noexcept;
 
+	static fstb_FORCEINLINE Vu32 *
+	               ptr_v (Scalar *ptr) noexcept;
+	static fstb_FORCEINLINE const Vu32 *
+	               ptr_v (const Scalar *ptr) noexcept;
+	static fstb_FORCEINLINE Scalar *
+	               ptr_s (Vu32 *ptr) noexcept;
+	static fstb_FORCEINLINE const Scalar *
+	               ptr_s (const Vu32 *ptr) noexcept;
+
 
 
 /*\\\ PROTECTED \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
@@ -241,6 +229,12 @@ fstb_FORCEINLINE Vu32 max (const Vu32 &lhs, const Vu32 &rhs) noexcept;
 fstb_FORCEINLINE Vu32 limit (const Vu32 &v, const Vu32 &mi, const Vu32 &ma) noexcept;
 fstb_FORCEINLINE Vu32 select (const Vu32 &cond, const Vu32 &v_t, const Vu32 &v_f) noexcept;
 fstb_FORCEINLINE std::tuple <Vu32, Vu32> swap_if (const Vu32 &cond, Vu32 lhs, Vu32 rhs) noexcept;
+
+// Defined in Vx32_conv.hpp
+template <>
+fstb_FLATINLINE Vu32 bit_cast (const Vf32 &x) noexcept;
+template <>
+fstb_FLATINLINE Vu32 bit_cast (const Vs32 &x) noexcept;
 
 
 

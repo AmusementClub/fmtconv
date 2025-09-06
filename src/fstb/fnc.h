@@ -19,10 +19,6 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 #if ! defined (fstb_fnc_HEADER_INCLUDED)
 #define	fstb_fnc_HEADER_INCLUDED
 
-#if defined (_MSC_VER)
-	#pragma warning (4 : 4250) // "Inherits via dominance."
-#endif
-
 
 
 /*\\\ INCLUDE FILES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
@@ -75,8 +71,14 @@ inline constexpr bool    is_eq (T v1, T v2, T eps = T (1e-9)) noexcept;
 template <class T>
 inline constexpr bool    is_eq_rel (T v1, T v2, T tol = T (1e-6)) noexcept;
 inline constexpr bool    is_eq_ulp (float v1, float v2, int32_t tol = 1) noexcept;
+inline int32_t calc_dist_ulp (float a, float b) noexcept;
+inline int64_t calc_dist_ulp (double a, double b) noexcept;
 inline int     get_prev_pow_2 (uint32_t x) noexcept;
+template <typename T>
+inline constexpr int     get_prev_pow_2_ce (T x) noexcept;
 inline int     get_next_pow_2 (uint32_t x) noexcept;
+template <typename T>
+inline constexpr int     get_next_pow_2_ce (T x) noexcept;
 inline constexpr double  sinc (double x) noexcept;
 inline double  pseudo_exp (double x, double c) noexcept;
 inline double  pseudo_log (double y, double c) noexcept;

@@ -23,10 +23,6 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 #if ! defined (fmtc_Convert_HEADER_INCLUDED)
 #define	fmtc_Convert_HEADER_INCLUDED
 
-#if defined (_MSC_VER)
-	#pragma warning (4 : 4250)
-#endif
-
 
 
 /*\\\ INCLUDE FILES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/

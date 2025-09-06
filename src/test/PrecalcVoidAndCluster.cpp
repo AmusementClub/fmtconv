@@ -15,13 +15,6 @@ http://www.wtfpl.net/ for more details.
 
 
 
-#if defined (_MSC_VER)
-	// Caused in an internal header by std::async
-	#pragma warning (disable : 4355)
-#endif
-
-
-
 /*\\\ INCLUDE FILES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
 
 #include "test/PrecalcVoidAndCluster.h"

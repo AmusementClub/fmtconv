@@ -44,10 +44,6 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 #if ! defined (fmtcl_VoidAndCluster_HEADER_INCLUDED)
 #define	fmtcl_VoidAndCluster_HEADER_INCLUDED
 
-#if defined (_MSC_VER)
-	#pragma warning (4 : 4250)
-#endif
-
 
 
 /*\\\ INCLUDE FILES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/

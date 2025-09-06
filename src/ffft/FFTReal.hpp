@@ -98,12 +98,13 @@ template <class DT>
 FFTReal <DT>::FFTReal (long length)
 :	_length (length)
 ,	_nbr_bits (FFTReal_get_next_pow2 (length))
-,	_br_lut ()
+,	_br_lut (length) // Not setting it here generates some warnings with GCC 15
 ,	_trigo_lut ()
 ,	_buffer (length)
 ,	_trigo_osc ()
 {
 	assert (FFTReal_is_pow2 (length));
+	assert (_nbr_bits >= 0);
 	assert (_nbr_bits <= MAX_BIT_DEPTH);
 
 	init_br_lut ();
@@ -170,7 +171,7 @@ void	FFTReal <DT>::do_fft (DataType f [], const DataType x []) const noexcept
 
 		const DataType	b_0 = x [0] + x [2];
 		const DataType	b_2 = x [1] + x [3];
-		
+
 		f [0] = b_0 + b_2;
 		f [2] = b_0 - b_2;
 	}
@@ -266,7 +267,7 @@ Throws: Nothing
 template <class DT>
 void	FFTReal <DT>::rescale (DataType x []) const noexcept
 {
-	const DataType	mul = DataType (1.0 / _length);
+	const DataType	mul = DataType (1.0 / double (_length));
 
 	if (_length < 4)
 	{
@@ -319,11 +320,6 @@ typename FFTReal <DT>::DataType *	FFTReal <DT>::use_buffer () const noexcept
 {
 	return _buffer.data ();
 }
-
-
-
-template <class DT>
-constexpr int	FFTReal <DT>::MAX_BIT_DEPTH;
 
 
 
@@ -912,11 +908,6 @@ void	FFTReal <DT>::compute_inverse_pass_1_2 (DataType x [], const DataType sf []
 	}
 	while (coef_index < _length);
 }
-
-
-
-template <class DT>
-constexpr int	FFTReal <DT>::TRIGO_BD_LIMIT;
 
 
 

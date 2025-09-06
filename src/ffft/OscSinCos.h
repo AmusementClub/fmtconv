@@ -15,13 +15,9 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 
 
 
+#pragma once
 #if ! defined (ffft_OscSinCos_HEADER_INCLUDED)
 #define	ffft_OscSinCos_HEADER_INCLUDED
-
-#if defined (_MSC_VER)
-	#pragma once
-	#pragma warning (4 : 4250) // "Inherits via dominance."
-#endif
 
 
 

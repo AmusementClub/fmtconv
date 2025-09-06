@@ -46,12 +46,12 @@ CellPool <T>::CellPool ()
 ,	_alloc_mutex ()
 ,	_m_ptr ()
 {
-	static_assert (BASE_SIZE * GROW_RATE_NUM / GROW_RATE_DEN > BASE_SIZE, "");
+	static_assert (_base_size * GrowRate::num / GrowRate::den > _base_size, "");
 
 	_m_ptr->_nbr_avail_cells = 0;
 	_m_ptr->_nbr_zones       = 0;
 
-	for (int zone_index = 0; zone_index < MAX_NBR_ZONES; ++zone_index)
+	for (int zone_index = 0; zone_index < _max_nbr_zones; ++zone_index)
 	{
 		_m_ptr->_zone_list [zone_index] = nullptr;
 	}
@@ -107,10 +107,10 @@ void	CellPool <T>::expand_to (size_t nbr_cells)
 {
 	assert (nbr_cells > 0);
 
-	size_t         cur_size = BASE_SIZE;
+	size_t         cur_size   = _base_size;
 	size_t         total_size = 0;
 	int            zone_index = 0;
-	while (total_size < nbr_cells && zone_index < MAX_NBR_ZONES)
+	while (total_size < nbr_cells && zone_index < _max_nbr_zones)
 	{
 		AtomicPtr <CellType> &  zone_ptr_ref = _m_ptr->_zone_list [zone_index];
 		const CellType *  zone_ptr = zone_ptr_ref;
@@ -144,7 +144,7 @@ typename CellPool <T>::CellType *	CellPool <T>::take_cell (bool autogrow_flag)
 
 		if (   cell_ptr == nullptr
 		    && autogrow_flag
-		    && nbr_zones < MAX_NBR_ZONES)
+		    && nbr_zones < _max_nbr_zones)
 		{
 			const size_t	new_size =
 				compute_total_size_for_zones (nbr_zones + 1);
@@ -153,7 +153,7 @@ typename CellPool <T>::CellType *	CellPool <T>::take_cell (bool autogrow_flag)
 	}
 	while (   cell_ptr == nullptr
 	       && autogrow_flag
-	       && nbr_zones < MAX_NBR_ZONES);
+	       && nbr_zones < _max_nbr_zones);
 
 	if (cell_ptr != nullptr)
 	{
@@ -217,9 +217,9 @@ void	CellPool <T>::allocate_zone (size_t cur_size, AtomicPtr <CellType> & zone_p
 template <class T>
 size_t	CellPool <T>::compute_grown_size (size_t prev_size)
 {
-	assert (prev_size >= BASE_SIZE);
+	assert (prev_size >= _base_size);
 
-	return (prev_size * GROW_RATE_NUM / GROW_RATE_DEN);
+	return prev_size * GrowRate::num / GrowRate::den;
 }
 
 
@@ -228,9 +228,9 @@ template <class T>
 size_t	CellPool <T>::compute_total_size_for_zones (int nbr_zones)
 {
 	assert (nbr_zones >= 0);
-	assert (nbr_zones <= MAX_NBR_ZONES);
+	assert (nbr_zones <= _max_nbr_zones);
 
-	size_t         cur_size = BASE_SIZE;
+	size_t         cur_size   = _base_size;
 	size_t         total_size = 0;
 	int            zone_index = 0;
 	while (zone_index < nbr_zones)

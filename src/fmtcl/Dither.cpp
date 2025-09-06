@@ -15,13 +15,6 @@ http://www.wtfpl.net/ for more details.
 
 
 
-#if defined (_MSC_VER)
-	#pragma warning (1 : 4130 4223 4705 4706)
-	#pragma warning (4 : 4355 4786 4800)
-#endif
-
-
-
 /*\\\ INCLUDE FILES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
 
 #include "fstb/def.h"
@@ -927,6 +920,13 @@ void	Dither::dither_plane (uint8_t *dst_ptr, ptrdiff_t dst_stride, const uint8_t
 	ErrDifBuf *   ed_buf_ptr = nullptr;
 	if (_errdif_flag)
 	{
+		if (w > _buf_factory_uptr->get_width ())
+		{
+			throw std::runtime_error (
+				"too wide frame in a variable-width clip."
+			);
+		}
+
 		ed_buf_ptr = _buf_pool.take_obj ();
 		if (ed_buf_ptr == nullptr)
 		{

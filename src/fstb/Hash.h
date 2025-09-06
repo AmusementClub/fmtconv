@@ -96,6 +96,20 @@ protected:
 
 private:
 
+	template <typename T>
+	fstb_FORCEINLINE static constexpr T
+	               nr_int (T x, T y) noexcept;
+	template <typename T>
+	fstb_FLATINLINE static constexpr T
+	               find_inverse_n (T x, int n) noexcept;
+	fstb_FORCEINLINE static constexpr uint32_t
+	               find_inverse (uint32_t x) noexcept;
+	fstb_FORCEINLINE static constexpr uint64_t
+	               find_inverse (uint64_t x) noexcept;
+	template <typename T>
+	static inline constexpr T
+	               reverse_xor_shift (T y, int shift) noexcept;
+
 
 
 /*\\\ FORBIDDEN MEMBER FUNCTIONS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/

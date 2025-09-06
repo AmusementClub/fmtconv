@@ -23,6 +23,7 @@ http://www.wtfpl.net/ for more details.
 /*\\\ INCLUDE FILES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
 
 #include <algorithm>
+#include <type_traits>
 
 #include <cassert>
 
@@ -86,12 +87,13 @@ void	Vu32::store (MEM *ptr) const noexcept
 {
 	assert (is_ptr_align_nz (ptr, fstb_SIMD128_ALIGN));
 
+	const auto     nv_ptr = const_cast <std::remove_volatile_t <MEM> *> (ptr);
 #if ! defined (fstb_HAS_SIMD)
-	*reinterpret_cast <Vu32Native *> (ptr) = _x;
+	*reinterpret_cast <Vu32Native *> (nv_ptr) = _x;
 #elif fstb_ARCHI == fstb_ARCHI_X86
-	_mm_store_si128 (reinterpret_cast <__m128i *> (ptr), _x);
+	_mm_store_si128 (reinterpret_cast <__m128i *> (nv_ptr), _x);
 #elif fstb_ARCHI == fstb_ARCHI_ARM
-	vst1q_u32 (reinterpret_cast <uint32_t *> (ptr), _x);
+	vst1q_u32 (reinterpret_cast <uint32_t *> (nv_ptr), _x);
 #endif // fstb_ARCHI
 }
 
@@ -102,12 +104,13 @@ void	Vu32::storeu (MEM *ptr) const noexcept
 {
 	assert (ptr != nullptr);
 
+	const auto     nv_ptr = const_cast <std::remove_volatile_t <MEM> *> (ptr);
 #if ! defined (fstb_HAS_SIMD)
-	*reinterpret_cast <Vu32Native *> (ptr) = _x;
+	*reinterpret_cast <Vu32Native *> (nv_ptr) = _x;
 #elif fstb_ARCHI == fstb_ARCHI_X86
-	_mm_storeu_si128 (reinterpret_cast <__m128i *> (ptr), _x);
+	_mm_storeu_si128 (reinterpret_cast <__m128i *> (nv_ptr), _x);
 #elif fstb_ARCHI == fstb_ARCHI_ARM
-	vst1q_u8 (reinterpret_cast <uint8_t *> (ptr), vreinterpretq_u8_u32 (_x));
+	vst1q_u8 (reinterpret_cast <uint8_t *> (nv_ptr), vreinterpretq_u8_u32 (_x));
 #endif // fstb_ARCHI
 }
 
@@ -125,7 +128,8 @@ void	Vu32::storeu_part (MEM *ptr, int n) const noexcept
 		return;
 	}
 
-	uint32_t *      f_ptr = reinterpret_cast <uint32_t *> (ptr);
+	const auto     nv_ptr = const_cast <std::remove_volatile_t <MEM> *> (ptr);
+	uint32_t *      f_ptr = reinterpret_cast <uint32_t *> (nv_ptr);
 
 #if ! defined (fstb_HAS_SIMD)
 
@@ -365,10 +369,10 @@ Vu32	Vu32::operator - () const noexcept
 {
 #if ! defined (fstb_HAS_SIMD)
 	return Vu32 {
-		-_x [0],
-		-_x [1],
-		-_x [2],
-		-_x [3]
+		uint32_t (-int32_t (_x [0])),
+		uint32_t (-int32_t (_x [1])),
+		uint32_t (-int32_t (_x [2])),
+		uint32_t (-int32_t (_x [3]))
 	};
 #elif fstb_ARCHI == fstb_ARCHI_X86
 	return _mm_sub_epi32 (_mm_setzero_si128 (), _x);
@@ -724,14 +728,15 @@ Vu32	Vu32::all1 () noexcept
 
 
 // "true" must be 1 and nothing else.
+// The resulting vector has all bits of each group of 32 set to 0 or 1.
 Vu32	Vu32::set_mask (bool m0, bool m1, bool m2, bool m3) noexcept
 {
 #if ! defined (fstb_HAS_SIMD)
 	return Vu32 {
-		-uint32_t (m0),
-		-uint32_t (m1),
-		-uint32_t (m2),
-		-uint32_t (m3),
+		uint32_t (-int32_t (m0)),
+		uint32_t (-int32_t (m1)),
+		uint32_t (-int32_t (m2)),
+		uint32_t (-int32_t (m3)),
 	};
 #elif 1 // Fast version
 # if fstb_ARCHI == fstb_ARCHI_X86
@@ -838,12 +843,13 @@ Vu32	Vu32::load (const MEM *ptr) noexcept
 {
 	assert (is_ptr_align_nz (ptr, fstb_SIMD128_ALIGN));
 
+	const auto     nv_ptr = const_cast <std::remove_volatile_t <MEM> *> (ptr);
 #if ! defined (fstb_HAS_SIMD)
-	return *reinterpret_cast <const Vu32 *> (ptr);
+	return *reinterpret_cast <const Vu32 *> (nv_ptr);
 #elif fstb_ARCHI == fstb_ARCHI_X86
-	return _mm_load_si128 (reinterpret_cast <const __m128i *> (ptr));
+	return _mm_load_si128 (reinterpret_cast <const __m128i *> (nv_ptr));
 #elif fstb_ARCHI == fstb_ARCHI_ARM
-	return vld1q_u32 (reinterpret_cast <const uint32_t *> (ptr));
+	return vld1q_u32 (reinterpret_cast <const uint32_t *> (nv_ptr));
 #endif // fstb_ARCHI
 }
 
@@ -854,15 +860,38 @@ Vu32	Vu32::loadu (const MEM *ptr) noexcept
 {
 	assert (ptr != nullptr);
 
+	const auto     nv_ptr = const_cast <std::remove_volatile_t <MEM> *> (ptr);
 #if ! defined (fstb_HAS_SIMD)
-	return *reinterpret_cast <const Vu32 *> (ptr);
+	return *reinterpret_cast <const Vu32 *> (nv_ptr);
 #elif fstb_ARCHI == fstb_ARCHI_X86
-	return _mm_loadu_si128 (reinterpret_cast <const __m128i *> (ptr));
+	return _mm_loadu_si128 (reinterpret_cast <const __m128i *> (nv_ptr));
 #elif fstb_ARCHI == fstb_ARCHI_ARM
 	return vreinterpretq_u32_u8 (
-		vld1q_u8 (reinterpret_cast <const uint8_t *> (ptr))
+		vld1q_u8 (reinterpret_cast <const uint8_t *> (nv_ptr))
 	);
 #endif // fstb_ARCHI
+}
+
+
+
+Vu32 *	Vu32::ptr_v (Vu32::Scalar *ptr) noexcept
+{
+	return reinterpret_cast <Vu32 *> (ptr);
+}
+
+const Vu32 *	Vu32::ptr_v (const Vu32::Scalar *ptr) noexcept
+{
+	return reinterpret_cast <const Vu32 *> (ptr);
+}
+
+Vu32::Scalar *	Vu32::ptr_s (Vu32 *ptr) noexcept
+{
+	return reinterpret_cast <Scalar *> (ptr);
+}
+
+const Vu32::Scalar *	Vu32::ptr_s (const Vu32 *ptr) noexcept
+{
+	return reinterpret_cast <const Scalar *> (ptr);
 }
 
 

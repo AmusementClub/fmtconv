@@ -11,10 +11,6 @@
 #if ! defined (fmtcl_PrimariesPreset_HEADER_INCLUDED)
 #define fmtcl_PrimariesPreset_HEADER_INCLUDED
 
-#if defined (_MSC_VER)
-	#pragma warning (4 : 4250)
-#endif
-
 
 
 /*\\\ INCLUDE FILES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/

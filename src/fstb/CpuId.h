@@ -18,11 +18,6 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 #if ! defined (fstb_CpuId_HEADER_INCLUDED)
 #define	fstb_CpuId_HEADER_INCLUDED
 
-#if defined (_MSC_VER)
-	#pragma once
-	#pragma warning (4 : 4250)
-#endif
-
 
 
 /*\\\ INCLUDE FILES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/

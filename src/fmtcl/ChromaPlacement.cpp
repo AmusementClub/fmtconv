@@ -15,13 +15,6 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 
 
 
-#if defined (_MSC_VER)
-	#pragma warning (1 : 4130 4223 4705 4706)
-	#pragma warning (4 : 4355 4786 4800)
-#endif
-
-
-
 /*\\\ INCLUDE FILES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
 
 #include "fmtcl/ChromaPlacement.h"
@@ -90,22 +83,30 @@ void	ChromaPlacement_compute_cplace (double &cp_h, double &cp_v, ChromaPlacement
 	// Subsampled chroma
 	if (! rgb_flag && plane_index > 0)
 	{
+		// Horizontal
 		if (ss_h > 0)
 		{
 			if (   cplace == ChromaPlacement_MPEG2
 			    || cplace == ChromaPlacement_DV
 			    || cplace == ChromaPlacement_T_L)
 			{
-				cp_h = 0.5 / (1 << ss_h);
+				cp_h = 0.5 / double (1 << ss_h);
 			}
 		}
 
+		// Vertical
 		if (ss_v == 1)
 		{
 			if (cplace == ChromaPlacement_MPEG2)
 			{
 				cp_v = 0.5;
 				ChromaPlacement_fix_itl (cp_v, interlaced_flag, top_flag);
+
+				// Transposed progressive 4:2:2
+				if (! interlaced_flag && ss_h == 0)
+				{
+					cp_v = 0.25;
+				}
 			}
 			else if (   cplace == ChromaPlacement_DV
 			         || cplace == ChromaPlacement_T_L)
@@ -113,12 +114,22 @@ void	ChromaPlacement_compute_cplace (double &cp_h, double &cp_v, ChromaPlacement
 				cp_v = 0.25;
 				ChromaPlacement_fix_itl (cp_v, interlaced_flag, top_flag, 0.25);
 
-				if (cplace == ChromaPlacement_DV && plane_index == 2)
+				if (cplace == ChromaPlacement_DV && plane_index == 1)
 				{
 					cp_v += 0.5;
 				}
 			}
 		}  // ss_v == 1
+
+		else if (ss_v > 1)
+		{
+			// Handles DV transposed pictures too
+			if (   cplace == ChromaPlacement_T_L
+			    || cplace == ChromaPlacement_DV)
+			{
+				cp_v = 0.5 / double (1 << ss_v);
+			}
+		}
 	}
 }
 

@@ -262,35 +262,26 @@ __m128i	ToolsSse2::load_si128_partial (const void *ptr, int len)
 		const int      ofs = len >> 1;
 		tmp += *(static_cast <const uint16_t *> (ptr) + ofs);
 	}
-	__m128i        val;
 	if (len >= 8)
 	{
 		const int      tmp0 = *(static_cast <const int32_t *> (ptr)    );
 		const int      tmp1 = *(static_cast <const int32_t *> (ptr) + 1);
 		if (len == 8)
 		{
-			val = _mm_set_epi32 (0, tmp, tmp1, tmp0);
+			return _mm_set_epi32 (0, tmp, tmp1, tmp0);
 		}
-		else
-		{
-			const int      tmp2 = *(static_cast <const int32_t *> (ptr) + 2);
-			val = _mm_set_epi32 (tmp, tmp2, tmp1, tmp0);
-		}
-	}
-	else
-	{
-		if (len == 0)
-		{
-			val = _mm_set_epi32 (0, 0, 0, tmp);
-		}
-		else
-		{
-			const int      tmp0 = *static_cast <const int32_t *> (ptr);
-			val = _mm_set_epi32 (0, 0, tmp, tmp0);
-		}
+		const int      tmp2 = *(static_cast <const int32_t *> (ptr) + 2);
+		return _mm_set_epi32 (tmp, tmp2, tmp1, tmp0);
 	}
 
-	return val;
+	if (len == 0)
+	{
+		return _mm_set_epi32 (0, 0, 0, tmp);
+	}
+
+	const int      tmp0 = *static_cast <const int32_t *> (ptr);
+
+	return _mm_set_epi32 (0, 0, tmp, tmp0);
 }
 
 
@@ -314,18 +305,13 @@ __m128i	ToolsSse2::load_epi64_partial (const void *ptr, int len)
 		const int      ofs = len >> 1;
 		tmp += *(static_cast <const uint16_t *> (ptr) + ofs);
 	}
-	__m128i        val;
 	if ((len & 4) != 0)
 	{
 		const int      tmp2 = *static_cast <const int32_t *> (ptr);
-		val = _mm_set_epi32 (0, 0, tmp, tmp2);
-	}
-	else
-	{
-		val = _mm_set_epi32 (0, 0, 0, tmp);
+		return _mm_set_epi32 (0, 0, tmp, tmp2);
 	}
 
-	return val;
+	return _mm_set_epi32 (0, 0, 0, tmp);
 }
 
 

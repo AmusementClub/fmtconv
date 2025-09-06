@@ -15,13 +15,9 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 
 
 
+#pragma once
 #if ! defined (fmtcl_ErrDifBufFactory_HEADER_INCLUDED)
 #define	fmtcl_ErrDifBufFactory_HEADER_INCLUDED
-
-#if defined (_MSC_VER)
-	#pragma once
-	#pragma warning (4 : 4250)
-#endif
 
 
 
@@ -47,6 +43,8 @@ public:
 
 	explicit       ErrDifBufFactory (long width);
 	virtual        ~ErrDifBufFactory () {}
+
+	long           get_width () const noexcept;
 
 
 

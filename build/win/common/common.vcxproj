@@ -111,13 +111,13 @@
       <AdditionalIncludeDirectories>../../../src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level4</WarningLevel>
-      <DisableSpecificWarnings>4127;4505</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4127;4324</DisableSpecificWarnings>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <LanguageStandard>stdcpp14</LanguageStandard>
-      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/Zc:__cplusplus /Zc:externConstexpr /Zc:lambda %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
@@ -288,6 +288,7 @@
     <ClInclude Include="..\..\..\src\fstb\AllocAlign.hpp" />
     <ClInclude Include="..\..\..\src\fstb\ArrayAlign.h" />
     <ClInclude Include="..\..\..\src\fstb\ArrayAlign.hpp" />
+    <ClInclude Include="..\..\..\src\fstb\bit_cast.h" />
     <ClInclude Include="..\..\..\src\fstb\CpuId.h" />
     <ClInclude Include="..\..\..\src\fstb\Hash.h" />
     <ClInclude Include="..\..\..\src\fstb\Hash.hpp" />
@@ -305,10 +306,14 @@
     <ClInclude Include="..\..\..\src\AvstpWrapper.h" />
     <ClInclude Include="..\..\..\src\fstb\Vf32.h" />
     <ClInclude Include="..\..\..\src\fstb\Vf32.hpp" />
+    <ClInclude Include="..\..\..\src\fstb\Vf32Native.h" />
     <ClInclude Include="..\..\..\src\fstb\Vs32.h" />
     <ClInclude Include="..\..\..\src\fstb\Vs32.hpp" />
+    <ClInclude Include="..\..\..\src\fstb\Vs32Native.h" />
     <ClInclude Include="..\..\..\src\fstb\Vu32.h" />
     <ClInclude Include="..\..\..\src\fstb\Vu32.hpp" />
+    <ClInclude Include="..\..\..\src\fstb\Vu32Native.h" />
+    <ClInclude Include="..\..\..\src\fstb\Vx32_conv.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\fmtcl\ArrayMultiType.cpp" />

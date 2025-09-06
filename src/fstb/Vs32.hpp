@@ -25,6 +25,7 @@ http://www.wtfpl.net/ for more details.
 #include "fstb/fnc.h"
 
 #include <algorithm>
+#include <type_traits>
 
 #include <cassert>
 
@@ -89,12 +90,13 @@ void	Vs32::store (MEM *ptr) const noexcept
 {
 	assert (is_ptr_align_nz (ptr, fstb_SIMD128_ALIGN));
 
+	const auto     nv_ptr = const_cast <std::remove_volatile_t <MEM> *> (ptr);
 #if ! defined (fstb_HAS_SIMD)
-	*reinterpret_cast <Vs32Native *> (ptr) = _x;
+	*reinterpret_cast <Vs32Native *> (nv_ptr) = _x;
 #elif fstb_ARCHI == fstb_ARCHI_X86
-	_mm_store_si128 (reinterpret_cast <__m128i *> (ptr), _x);
+	_mm_store_si128 (reinterpret_cast <__m128i *> (nv_ptr), _x);
 #elif fstb_ARCHI == fstb_ARCHI_ARM
-	vst1q_s32 (reinterpret_cast <int32_t *> (ptr), _x);
+	vst1q_s32 (reinterpret_cast <int32_t *> (nv_ptr), _x);
 #endif // fstb_ARCHI
 }
 
@@ -105,12 +107,13 @@ void	Vs32::storeu (MEM *ptr) const noexcept
 {
 	assert (ptr != nullptr);
 
+	const auto     nv_ptr = const_cast <std::remove_volatile_t <MEM> *> (ptr);
 #if ! defined (fstb_HAS_SIMD)
-	*reinterpret_cast <Vs32Native *> (ptr) = _x;
+	*reinterpret_cast <Vs32Native *> (nv_ptr) = _x;
 #elif fstb_ARCHI == fstb_ARCHI_X86
-	_mm_storeu_si128 (reinterpret_cast <__m128i *> (ptr), _x);
+	_mm_storeu_si128 (reinterpret_cast <__m128i *> (nv_ptr), _x);
 #elif fstb_ARCHI == fstb_ARCHI_ARM
-	vst1q_u8 (reinterpret_cast <uint8_t *> (ptr), vreinterpretq_u8_s32 (_x));
+	vst1q_u8 (reinterpret_cast <uint8_t *> (nv_ptr), vreinterpretq_u8_s32 (_x));
 #endif // fstb_ARCHI
 }
 
@@ -128,7 +131,8 @@ void	Vs32::storeu_part (MEM *ptr, int n) const noexcept
 		return;
 	}
 
-	int32_t *      f_ptr = reinterpret_cast <int32_t *> (ptr);
+	const auto     nv_ptr = const_cast <std::remove_volatile_t <MEM> *> (ptr);
+	int32_t *      f_ptr = reinterpret_cast <int32_t *> (nv_ptr);
 
 #if ! defined (fstb_HAS_SIMD)
 
@@ -695,6 +699,7 @@ Vs32	Vs32::all1 () noexcept
 
 
 // "true" must be 1 and nothing else.
+// The resulting vector has all bits of each group of 32 set to 0 or 1.
 Vs32	Vs32::set_mask (bool m0, bool m1, bool m2, bool m3) noexcept
 {
 #if ! defined (fstb_HAS_SIMD)
@@ -802,12 +807,13 @@ Vs32	Vs32::load (const MEM *ptr) noexcept
 {
 	assert (is_ptr_align_nz (ptr, fstb_SIMD128_ALIGN));
 
+	const auto     nv_ptr = const_cast <std::remove_volatile_t <MEM> *> (ptr);
 #if ! defined (fstb_HAS_SIMD)
-	return *reinterpret_cast <const Vs32 *> (ptr);
+	return *reinterpret_cast <const Vs32 *> (nv_ptr);
 #elif fstb_ARCHI == fstb_ARCHI_X86
-	return _mm_load_si128 (reinterpret_cast <const __m128i *> (ptr));
+	return _mm_load_si128 (reinterpret_cast <const __m128i *> (nv_ptr));
 #elif fstb_ARCHI == fstb_ARCHI_ARM
-	return vld1q_s32 (reinterpret_cast <const int32_t *> (ptr));
+	return vld1q_s32 (reinterpret_cast <const int32_t *> (nv_ptr));
 #endif // fstb_ARCHI
 }
 
@@ -818,15 +824,38 @@ Vs32	Vs32::loadu (const MEM *ptr) noexcept
 {
 	assert (ptr != nullptr);
 
+	const auto     nv_ptr = const_cast <std::remove_volatile_t <MEM> *> (ptr);
 #if ! defined (fstb_HAS_SIMD)
-	return *reinterpret_cast <const Vs32 *> (ptr);
+	return *reinterpret_cast <const Vs32 *> (nv_ptr);
 #elif fstb_ARCHI == fstb_ARCHI_X86
-	return _mm_loadu_si128 (reinterpret_cast <const __m128i *> (ptr));
+	return _mm_loadu_si128 (reinterpret_cast <const __m128i *> (nv_ptr));
 #elif fstb_ARCHI == fstb_ARCHI_ARM
 	return vreinterpretq_s32_u8 (
-		vld1q_u8 (reinterpret_cast <const uint8_t *> (ptr))
+		vld1q_u8 (reinterpret_cast <const uint8_t *> (nv_ptr))
 	);
 #endif // fstb_ARCHI
+}
+
+
+
+Vs32 *	Vs32::ptr_v (Vs32::Scalar *ptr) noexcept
+{
+	return reinterpret_cast <Vs32 *> (ptr);
+}
+
+const Vs32 *	Vs32::ptr_v (const Vs32::Scalar *ptr) noexcept
+{
+	return reinterpret_cast <const Vs32 *> (ptr);
+}
+
+Vs32::Scalar *	Vs32::ptr_s (Vs32 *ptr) noexcept
+{
+	return reinterpret_cast <Scalar *> (ptr);
+}
+
+const Vs32::Scalar *	Vs32::ptr_s (const Vs32 *ptr) noexcept
+{
+	return reinterpret_cast <const Scalar *> (ptr);
 }
 
 

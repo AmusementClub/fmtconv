@@ -43,14 +43,6 @@ namespace conc
 
 
 
-// 'initializing' : conversion from 'size_t' to 'volatile int', possible loss of data
-#if defined (_MSC_VER)
-	#pragma warning (push)
-	#pragma warning (4 : 4267)
-#endif
-
-
-
 template <class T>
 AtomicInt <T>::AtomicInt () noexcept
 :	_val ()
@@ -226,12 +218,6 @@ T	AtomicInt <T>::operator -- (int) noexcept
 
 
 /*\\\ PRIVATE \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
-
-
-
-#if defined (_MSC_VER)
-	#pragma warning (pop)
-#endif
 
 
 

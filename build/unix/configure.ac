@@ -1,4 +1,4 @@
-AC_INIT([fmtconv], [r30], [http://forum.doom9.org/showthread.php?t=166504], [fmtconv], [http://forum.doom9.org/showthread.php?t=166504])
+AC_INIT([fmtconv], [r31], [http://forum.doom9.org/showthread.php?t=166504], [fmtconv], [http://forum.doom9.org/showthread.php?t=166504])
 AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE([foreign no-dist-gzip dist-xz subdir-objects no-define])
@@ -55,18 +55,25 @@ AS_IF(
     [test "x$CXX" = "xclang++"],
     [
         CLG="true"
-        MFLAGS="$MFLAGS -fexperimental-new-pass-manager -mllvm -inline-threshold=1000"
+        MFLAGS="$MFLAGS -mllvm -inline-threshold=1000"
         COMPWARNFLAGS=""
         AC_MSG_NOTICE([Using clang as compiler.])
+        AS_IF(
+            [test "x$host_os" != "xmingw32" && test "x$host_os" != "xmingw64"],
+            [
+                AC_MSG_NOTICE([Using libc++.])
+                EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -stdlib=libc++ -D_LIBCPP_ABI_ENABLE_UNIQUE_PTR_TRIVIAL_ABI -D_LIBCPP_ABI_ENABLE_SHARED_PTR_TRIVIAL_ABI"
+            ]
+        )
     ],
     [COMPWARNFLAGS="-Wduplicated-cond -Wduplicated-branches -Wlogical-op"]
 )
 
 AC_LANG_PUSH([C++])
+#AS_IF([test "x$CXXSTD" = "x"], AX_CHECK_COMPILE_FLAG([-std=c++23], [CXXSTD="c++23"]))
 #AS_IF([test "x$CXXSTD" = "x"], AX_CHECK_COMPILE_FLAG([-std=c++20], [CXXSTD="c++20"]))
-#AS_IF([test "x$CXXSTD" = "x"], AX_CHECK_COMPILE_FLAG([-std=c++17], [CXXSTD="c++17"]))
-AS_IF([test "x$CXXSTD" = "x"], AX_CHECK_COMPILE_FLAG([-std=c++14], [CXXSTD="c++14"]))
-AS_IF([test "x$CXXSTD" = "x"], AC_MSG_ERROR([Minimum requirement: C++14]))
+AS_IF([test "x$CXXSTD" = "x"], AX_CHECK_COMPILE_FLAG([-std=c++17], [CXXSTD="c++17"]))
+AS_IF([test "x$CXXSTD" = "x"], AC_MSG_ERROR([Minimum requirement: C++17]))
 AC_LANG_POP([C++])
 
 # It seems that -latomic is needed only for some versions of GCC < 5.3

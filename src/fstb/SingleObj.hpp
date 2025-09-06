@@ -22,6 +22,8 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 
 /*\\\ INCLUDE FILES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
 
+#include <new>
+
 #include <cassert>
 
 
@@ -36,7 +38,8 @@ namespace fstb
 
 
 template <class T, class A>
-SingleObj <T, A>::SingleObj ()
+template <typename... U>
+SingleObj <T, A>::SingleObj (U... args)
 :	_allo ()
 ,	_obj_ptr (_allo.allocate (1))
 {
@@ -51,7 +54,7 @@ SingleObj <T, A>::SingleObj ()
 	try
 #endif
 	{
-		new (_obj_ptr) T ();
+		new (_obj_ptr) T (args...);
 	}
 #if defined (__cpp_exceptions) || ! defined (__GNUC__)
 	catch (...)

@@ -23,17 +23,8 @@ http://www.wtfpl.net/ for more details.
 
 /*\\\ INCLUDE FILES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
 
-#include "fstb/def.h"
-
-#if ! defined (fstb_HAS_SIMD)
-	#include <array>
-#elif (fstb_ARCHI == fstb_ARCHI_X86)
-	#include <emmintrin.h>
-#elif (fstb_ARCHI == fstb_ARCHI_ARM)
-	#include <arm_neon.h>
-#else
-	#error
-#endif
+#include "fstb/bit_cast.h"
+#include "fstb/Vf32Native.h"
 
 #include <tuple>
 
@@ -46,23 +37,8 @@ namespace fstb
 
 
 
-#if ! defined (fstb_HAS_SIMD)
-
-typedef std::array <float, 4> Vf32Native;
-
-#elif fstb_ARCHI == fstb_ARCHI_X86
-
-typedef __m128      Vf32Native;
-
-#elif fstb_ARCHI == fstb_ARCHI_ARM
-
-typedef float32x4_t Vf32Native;
-
-#else // fstb_ARCHI
-#error
-#endif // fstb_ARCHI
-
-
+class Vs32;
+class Vu32;
 
 class Vf32
 {
@@ -74,10 +50,15 @@ public:
 	static constexpr int _len_l2 = 2;
 	static constexpr int _length = 1 << _len_l2;
 	typedef float Scalar;
+	typedef Vf32Native Native;
 
 	               Vf32 ()                        = default;
 	fstb_FORCEINLINE
 	               Vf32 (Vf32Native a) noexcept : _x { a } {}
+	explicit fstb_FORCEINLINE // Defined in Vx32_conv.hpp
+	               Vf32 (const Vs32 &s) noexcept;
+	explicit fstb_FORCEINLINE // Defined in Vx32_conv.hpp
+	               Vf32 (const Vu32 &u) noexcept;
 	explicit fstb_FORCEINLINE
 	               Vf32 (Scalar a) noexcept;
 	explicit fstb_FORCEINLINE
@@ -257,6 +238,15 @@ public:
 	static fstb_FORCEINLINE Vf32
 	               loadu_pair (const MEM *ptr) noexcept;
 
+	static fstb_FORCEINLINE Vf32 *
+	               ptr_v (Scalar *ptr) noexcept;
+	static fstb_FORCEINLINE const Vf32 *
+	               ptr_v (const Scalar *ptr) noexcept;
+	static fstb_FORCEINLINE Scalar *
+	               ptr_s (Vf32 *ptr) noexcept;
+	static fstb_FORCEINLINE const Scalar *
+	               ptr_s (const Vf32 *ptr) noexcept;
+
 
 
 /*\\\ PROTECTED \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
@@ -277,16 +267,6 @@ private:
 
 #if ! defined (fstb_HAS_SIMD)
 public:
-	union Combo
-	{
-		Vf32Native     _vf32;
-		int32_t        _s32 [_length];
-		uint32_t       _u32 [_length];
-	};
-	static_assert (
-		sizeof (Combo) == sizeof (Vf32Native),
-		"Wrong size for the wrapping combo structure"
-	);
 #endif
 	Vf32Native  _x;
 private:
@@ -338,6 +318,12 @@ fstb_FORCEINLINE std::tuple <Vf32, Vf32> swap_if (Vf32 cond, Vf32 lhs, Vf32 rhs)
 fstb_FORCEINLINE Vf32 sqrt (Vf32 v) noexcept;
 fstb_FORCEINLINE Vf32 log2 (Vf32 v) noexcept;
 fstb_FORCEINLINE Vf32 exp2 (Vf32 v) noexcept;
+
+// Defined in Vx32_conv.hpp
+template <>
+fstb_FLATINLINE Vf32 bit_cast (const Vs32 &x) noexcept;
+template <>
+fstb_FLATINLINE Vf32 bit_cast (const Vu32 &x) noexcept;
 
 
 

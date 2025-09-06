@@ -15,13 +15,9 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 
 
 
+#pragma once
 #if ! defined (conc_CellPool_HEADER_INCLUDED)
 #define	conc_CellPool_HEADER_INCLUDED
-
-#if defined (_MSC_VER)
-	#pragma once
-	#pragma warning (4 : 4250)
-#endif
 
 
 
@@ -35,6 +31,7 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 
 #include <array>
 #include <mutex>
+#include <ratio>
 
 #include <cstddef>
 #include <cstdint>
@@ -79,15 +76,14 @@ protected:
 
 private:
 
-	static const int  MAX_NBR_ZONES  = 64;
-	static const int  GROW_RATE_NUM  = 3;
-	static const int  GROW_RATE_DEN  = 2;
-	static const int  BASE_SIZE      = 64; // Number of cells for the first zone
+	static constexpr int _max_nbr_zones = 64;
+	static constexpr int _base_size     = 64; // Number of cells for the first zone
+	typedef std::ratio <3, 2> GrowRate; // > 1
 
 	typedef  LockFreeStack <T>    CellStack;
 	typedef  AtomicInt <size_t>   CountCells;
 	typedef  AtomicInt <int>      CountZones;
-	typedef  std::array <AtomicPtr <CellType>, MAX_NBR_ZONES>  ZoneList;
+	typedef  std::array <AtomicPtr <CellType>, _max_nbr_zones>  ZoneList;
 
 	class Members	// These ones must be aligned
 	{

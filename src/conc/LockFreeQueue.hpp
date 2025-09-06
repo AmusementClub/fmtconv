@@ -85,8 +85,10 @@ void	LockFreeQueue <T>::enqueue (CellType &cell) noexcept
 template <class T>
 typename LockFreeQueue <T>::CellType *	LockFreeQueue <T>::dequeue () noexcept
 {
+#if ! defined (NDEBUG)
 	constexpr int  max_loop = 100;
 	int            loop_cnt = 0;
+#endif
 	intptr_t       ocount   = 0;
 	intptr_t       icount   = 0;
 	CellType *     head_ptr = nullptr;
@@ -122,6 +124,7 @@ typename LockFreeQueue <T>::CellType *	LockFreeQueue <T>::dequeue () noexcept
 			}
 		}
 
+#if ! defined (NDEBUG)
 		++ loop_cnt;
 		if (loop_cnt >= max_loop)
 		{
@@ -129,8 +132,8 @@ typename LockFreeQueue <T>::CellType *	LockFreeQueue <T>::dequeue () noexcept
 			// - corrupted
 			// - or in heavy contention
 			assert (false);
-			return nullptr;
 		}
+#endif
 	}
 	while (true);
 

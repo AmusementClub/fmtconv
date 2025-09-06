@@ -22,9 +22,11 @@ http://www.wtfpl.net/ for more details.
 
 /*\\\ INCLUDE FILES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
 
+#include  "fstb/bit_cast.h"
 #include  "fstb/fnc.h"
 
 #include <algorithm>
+#include <type_traits>
 
 #include <cassert>
 #include <cfloat>
@@ -155,12 +157,13 @@ void	Vf32::storeu (MEM *ptr) const noexcept
 {
 	assert (ptr != nullptr);
 
+	const auto     nv_ptr = const_cast <std::remove_volatile_t <MEM> *> (ptr);
 #if ! defined (fstb_HAS_SIMD)
-	*reinterpret_cast <Vf32Native *> (ptr) = _x;
+	*reinterpret_cast <Vf32Native *> (nv_ptr) = _x;
 #elif fstb_ARCHI == fstb_ARCHI_X86
-	_mm_storeu_ps (reinterpret_cast <float *> (ptr), _x);
+	_mm_storeu_ps (reinterpret_cast <float *> (nv_ptr), _x);
 #elif fstb_ARCHI == fstb_ARCHI_ARM
-	vst1q_u8 (reinterpret_cast <uint8_t *> (ptr), vreinterpretq_u8_f32 (_x));
+	vst1q_u8 (reinterpret_cast <uint8_t *> (nv_ptr), vreinterpretq_u8_f32 (_x));
 #endif // fstb_ARCHI
 }
 
@@ -190,17 +193,18 @@ void	Vf32::storeu_pair (MEM *ptr) const noexcept
 {
 	assert (ptr != nullptr);
 
+	const auto     nv_ptr = const_cast <std::remove_volatile_t <MEM> *> (ptr);
 #if ! defined (fstb_HAS_SIMD)
-	auto           p = reinterpret_cast <float *> (ptr);
+	auto           p = reinterpret_cast <float *> (nv_ptr);
 	p [0] = _x [0];
 	p [1] = _x [1];
 #elif fstb_ARCHI == fstb_ARCHI_X86
-	_mm_store_ss (reinterpret_cast <float *> (ptr)    , _x );
+	_mm_store_ss (reinterpret_cast <float *> (nv_ptr)    , _x );
 	const auto     v1 = _mm_shuffle_ps (_x, _x, 1 << 0);
-	_mm_store_ss (reinterpret_cast <float *> (ptr) + 1, v1);
+	_mm_store_ss (reinterpret_cast <float *> (nv_ptr) + 1, v1);
 #elif fstb_ARCHI == fstb_ARCHI_ARM
 	vst1_u8 (
-		reinterpret_cast <uint8_t *> (ptr),
+		reinterpret_cast <uint8_t *> (nv_ptr),
 		vreinterpret_u8_f32 (vget_low_f32 (_x))
 	);
 #endif // fstb_ARCHI
@@ -214,12 +218,13 @@ void	Vf32::storeu_scalar (MEM *ptr) const noexcept
 {
 	assert (ptr != nullptr);
 
+	const auto     nv_ptr = const_cast <std::remove_volatile_t <MEM> *> (ptr);
 #if ! defined (fstb_HAS_SIMD)
-	reinterpret_cast <float *> (ptr) [0] = _x [0];
+	reinterpret_cast <float *> (nv_ptr) [0] = _x [0];
 #elif fstb_ARCHI == fstb_ARCHI_X86
-	_mm_store_ss (reinterpret_cast <float *> (ptr), _x);
+	_mm_store_ss (reinterpret_cast <float *> (nv_ptr), _x);
 #elif fstb_ARCHI == fstb_ARCHI_ARM
-	vst1q_lane_f32 (reinterpret_cast <float32_t *> (ptr), _x, 0);
+	vst1q_lane_f32 (reinterpret_cast <float32_t *> (nv_ptr), _x, 0);
 #endif // fstb_ARCHI
 }
 
@@ -306,13 +311,13 @@ Vf32 &	Vf32::operator /= (const Vf32Native &other) noexcept
 Vf32 &	Vf32::operator &= (const Vf32Native &other) noexcept
 {
 #if ! defined (fstb_HAS_SIMD)
-	Combo          al { _x };
-	Combo          ar { other };
-	al._s32 [0] &= ar._s32 [0];
-	al._s32 [1] &= ar._s32 [1];
-	al._s32 [2] &= ar._s32 [2];
-	al._s32 [3] &= ar._s32 [3];
-	_x = al._vf32;
+	for (int k = 0; k < _length; ++k)
+	{
+		_x [k] = bit_cast <float> (
+			  bit_cast <uint32_t> (   _x [k])
+			& bit_cast <uint32_t> (other [k])
+		);
+	}
 #elif fstb_ARCHI == fstb_ARCHI_X86
 	_x = _mm_and_ps (_x, other);
 #elif fstb_ARCHI == fstb_ARCHI_ARM
@@ -329,13 +334,13 @@ Vf32 &	Vf32::operator &= (const Vf32Native &other) noexcept
 Vf32 &	Vf32::operator |= (const Vf32Native &other) noexcept
 {
 #if ! defined (fstb_HAS_SIMD)
-	Combo          al { _x };
-	Combo          ar { other };
-	al._s32 [0] |= ar._s32 [0];
-	al._s32 [1] |= ar._s32 [1];
-	al._s32 [2] |= ar._s32 [2];
-	al._s32 [3] |= ar._s32 [3];
-	_x = al._vf32;
+	for (int k = 0; k < _length; ++k)
+	{
+		_x [k] = bit_cast <float> (
+			  bit_cast <uint32_t> (   _x [k])
+			| bit_cast <uint32_t> (other [k])
+		);
+	}
 #elif fstb_ARCHI == fstb_ARCHI_X86
 	_x = _mm_or_ps (_x, other);
 #elif fstb_ARCHI == fstb_ARCHI_ARM
@@ -352,13 +357,13 @@ Vf32 &	Vf32::operator |= (const Vf32Native &other) noexcept
 Vf32 &	Vf32::operator ^= (const Vf32Native &other) noexcept
 {
 #if ! defined (fstb_HAS_SIMD)
-	Combo          al { _x };
-	Combo          ar { other };
-	al._s32 [0] ^= ar._s32 [0];
-	al._s32 [1] ^= ar._s32 [1];
-	al._s32 [2] ^= ar._s32 [2];
-	al._s32 [3] ^= ar._s32 [3];
-	_x = al._vf32;
+	for (int k = 0; k < _length; ++k)
+	{
+		_x [k] = bit_cast <float> (
+			  bit_cast <uint32_t> (   _x [k])
+			^ bit_cast <uint32_t> (other [k])
+		);
+	}
 #elif fstb_ARCHI == fstb_ARCHI_X86
 	_x = _mm_xor_ps (_x, other);
 #elif fstb_ARCHI == fstb_ARCHI_ARM
@@ -630,7 +635,7 @@ Vf32	Vf32::spread () const noexcept
 
 
 
-// Assumes "to nearest" rounding mode on x86
+// Assumes "to nearest" or "to nearest even" rounding mode on x86
 Vf32	Vf32::round () const noexcept
 {
 #if ! defined (fstb_HAS_SIMD)
@@ -664,9 +669,11 @@ Vf32	Vf32::rcp_approx () const noexcept
 		1.f / _x [3]
 	};
 #elif fstb_ARCHI == fstb_ARCHI_X86
+	// Max relative error: 3.15e-4
 	return _mm_rcp_ps (_x);
 #elif fstb_ARCHI == fstb_ARCHI_ARM
-	auto           r = vrecpeq_f32 (_x);
+	// Max relative error: 8.25e-6
+	auto           r = vrecpeq_f32 (_x); // Max rel err: 2.85e-3
 	r = vmulq_f32 (vrecpsq_f32 (_x, r), r);
 	return r;
 #endif // fstb_ARCHI
@@ -680,10 +687,12 @@ Vf32	Vf32::rcp_approx2 () const noexcept
 #if ! defined (fstb_HAS_SIMD)
 	return rcp_approx ();
 #elif fstb_ARCHI == fstb_ARCHI_X86
+	// Max relative error: 2.06e-7
 	auto           r = _mm_rcp_ps (_x);
 	r = r * (_mm_set1_ps (2.f) - r * _x);
 	return r;
 #elif fstb_ARCHI == fstb_ARCHI_ARM
+	// Max relative error: 1.47e-7
 	auto           r = vrecpeq_f32 (_x);
 	r = vmulq_f32 (vrecpsq_f32 (_x, r), r);
 	r = vmulq_f32 (vrecpsq_f32 (_x, r), r);
@@ -755,10 +764,16 @@ Vf32	Vf32::rsqrt () const noexcept
 		1.f / sqrtf (_x [3])
 	};
 #elif fstb_ARCHI == fstb_ARCHI_X86
+	
 	__m128         rs = _mm_rsqrt_ps (_x);
-	rs = _mm_set1_ps (0.5f) * rs * (_mm_set1_ps (3) - __m128 (_x) * rs * rs);
+//	rs = _mm_set1_ps (0.5f) * rs * (_mm_set1_ps (3) - __m128 (_x) * rs * rs); // Max relative error: 2.18e-7
+	// Max relative error: 1.89e-7
+	const auto     h  = _mm_set1_ps (0.5f);
+	const auto     xh = _mm_mul_ps (h, __m128 (_x));
+	rs = rs + rs * (h - xh * rs * rs);
 	return rs;
 #elif fstb_ARCHI == fstb_ARCHI_ARM
+	// Max relative error: 1.46e-7
 	auto           rs = vrsqrteq_f32 (_x);
 	rs *= vrsqrtsq_f32 (rs * float32x4_t (_x), rs);
 	rs *= vrsqrtsq_f32 (rs * float32x4_t (_x), rs);
@@ -770,16 +785,18 @@ Vf32	Vf32::rsqrt () const noexcept
 
 Vf32	Vf32::rsqrt_approx () const noexcept
 {
+	assert (*this > Vf32::zero ());
 #if ! defined (fstb_HAS_SIMD)
 	// Ref:
 	// Jan Kadlec, http://rrrola.wz.cz/inv_sqrt.html, 2010
 	const auto     xh = (*this) * Vf32 (0.703952253f);
-	Combo          c { _x };
-	c._s32 [0] = 0x5F1FFFF9 - (c._s32 [0] >> 1);
-	c._s32 [1] = 0x5F1FFFF9 - (c._s32 [1] >> 1);
-	c._s32 [2] = 0x5F1FFFF9 - (c._s32 [2] >> 1);
-	c._s32 [3] = 0x5F1FFFF9 - (c._s32 [3] >> 1);
-	auto           rs = Vf32 { c._vf32 };
+	Vf32           rs;
+	for (int k = 0; k < _length; ++k)
+	{
+		rs._x [k] = bit_cast <float> (
+			0x5F1FFFF9 - (bit_cast <uint32_t> (_x [0]) >> 1)
+		);
+	}
 	rs *= Vf32 (1.681914091f) - xh * rs * rs;
 	return rs;
 #elif fstb_ARCHI == fstb_ARCHI_X86
@@ -797,32 +814,20 @@ Vf32	Vf32::rsqrt_approx () const noexcept
 template <typename P>
 Vf32	Vf32::log2_base (P poly) const noexcept
 {
+	assert (*this > Vf32::zero ());
+
 	const int32_t  log2_sub = 127;
 
 #if ! defined (fstb_HAS_SIMD)
 
-	assert (
-	      _x [0] > 0
-		&& _x [1] > 0
-		&& _x [2] > 0
-		&& _x [3] > 0
-	);
-	Combo          c { _x };
-	const int      x0 = c._s32 [0];
-	const int      x1 = c._s32 [1];
-	const int      x2 = c._s32 [2];
-	const int      x3 = c._s32 [3];
-	const Vf32     log2_int {
-		float (((x0 >> 23) & 255) - log2_sub),
-		float (((x1 >> 23) & 255) - log2_sub),
-		float (((x2 >> 23) & 255) - log2_sub),
-		float (((x3 >> 23) & 255) - log2_sub)
-	};
-	c._s32 [0] = (x0 & ~(255 << 23)) + (127 << 23);
-	c._s32 [1] = (x1 & ~(255 << 23)) + (127 << 23);
-	c._s32 [2] = (x2 & ~(255 << 23)) + (127 << 23);
-	c._s32 [3] = (x3 & ~(255 << 23)) + (127 << 23);
-	Vf32           part { c._vf32 };
+	Vf32           part;
+	Vf32           log2_int;
+	for (int k = 0; k < _length; ++k)
+	{
+		auto           i = bit_cast <uint32_t> (_x [k]);
+		log2_int._x [k] = float ((int32_t (i >> 23)) - log2_sub);
+		part._x [k]     = bit_cast <float> ((i & ~(255 << 23)) + (127 << 23));
+	}
 
 #else // fstb_HAS_SIMD
 
@@ -870,30 +875,29 @@ Vf32	Vf32::exp2_base (P poly) const noexcept
 {
 #if ! defined (fstb_HAS_SIMD)
 
-	const int32_t  tx0 = floor_int (_x [0]);
-	const int32_t  tx1 = floor_int (_x [1]);
-	const int32_t  tx2 = floor_int (_x [2]);
-	const int32_t  tx3 = floor_int (_x [3]);
+	const std::array <int32_t, _length> tx {
+		floor_int (_x [0]),
+		floor_int (_x [1]),
+		floor_int (_x [2]),
+		floor_int (_x [3])
+	};
 	const Vf32     frac {
-		_x [0] - static_cast <float> (tx0),
-		_x [1] - static_cast <float> (tx1),
-		_x [2] - static_cast <float> (tx2),
-		_x [3] - static_cast <float> (tx3)
+		_x [0] - static_cast <float> (tx [0]),
+		_x [1] - static_cast <float> (tx [1]),
+		_x [2] - static_cast <float> (tx [2]),
+		_x [3] - static_cast <float> (tx [3])
 	};
 
-	Combo          combo { poly (frac) };
+	auto           p = poly (frac);
 
-	combo._s32 [0] += tx0 << 23;
-	combo._s32 [1] += tx1 << 23;
-	combo._s32 [2] += tx2 << 23;
-	combo._s32 [3] += tx3 << 23;
-	assert (
-	      combo._vf32 [0] >= 0
-		&& combo._vf32 [1] >= 0
-		&& combo._vf32 [2] >= 0
-		&& combo._vf32 [3] >= 0
-	);
-	return combo._vf32;
+	for (int k = 0; k < _length; ++k)
+	{
+		auto           i = bit_cast <int32_t> (p._x [k]);
+		i += tx [k] << 23;
+		p._x [k] = bit_cast <float> (i);
+	}
+
+	return p;
 
 #else // fstb_HAS_SIMD
 
@@ -954,12 +958,12 @@ Vf32	Vf32::signbit () const noexcept
 Vf32   Vf32::is_lt_0 () const noexcept
 {
 #if ! defined (fstb_HAS_SIMD)
-	Combo          r;
-	r._s32 [0] = (_x [0] < 0) ? -1 : 0;
-	r._s32 [1] = (_x [1] < 0) ? -1 : 0;
-	r._s32 [2] = (_x [2] < 0) ? -1 : 0;
-	r._s32 [3] = (_x [3] < 0) ? -1 : 0;
-	return r._vf32;
+	Vf32           r;
+	for (int k = 0; k < _length; ++k)
+	{
+		r._x [k] = bit_cast <float> ((_x [k] < 0) ? -1 : 0);
+	}
+	return r;
 #elif fstb_ARCHI == fstb_ARCHI_X86
 	return _mm_castsi128_ps (_mm_srai_epi32 (_mm_castps_si128 (_x), 31));
 #elif fstb_ARCHI == fstb_ARCHI_ARM
@@ -1091,8 +1095,11 @@ float	Vf32::max_h () const noexcept
 bool   Vf32::and_h () const noexcept
 {
 #if ! defined (fstb_HAS_SIMD)
-	const Combo    c { _x };
-	const int32_t  t = (c._s32 [0] & c._s32 [1]) & (c._s32 [2] & c._s32 [3]);
+	auto           t = bit_cast <int32_t> (_x [0]);
+	for (int k = 1; k < _length; ++k)
+	{
+		t &= bit_cast <int32_t> (_x [k]);
+	}
 	return (t == -1);
 #elif fstb_ARCHI == fstb_ARCHI_X86
 	return (_mm_movemask_ps (_x) == 15);
@@ -1112,9 +1119,11 @@ bool   Vf32::and_h () const noexcept
 bool   Vf32::or_h () const noexcept
 {
 #if ! defined (fstb_HAS_SIMD)
-	Combo          c;
-	c._vf32 = _x;
-	const int32_t  t = (c._s32 [0] | c._s32 [1]) | (c._s32 [2] | c._s32 [3]);
+	auto           t = bit_cast <int32_t> (_x [0]);
+	for (int k = 1; k < _length; ++k)
+	{
+		t |= bit_cast <int32_t> (_x [k]);
+	}
 	return (t != 0);
 #elif fstb_ARCHI == fstb_ARCHI_X86
 	return (_mm_movemask_ps (_x) != 0);
@@ -1136,13 +1145,11 @@ bool   Vf32::or_h () const noexcept
 unsigned int	Vf32::movemask () const noexcept
 {
 #if ! defined (fstb_HAS_SIMD)
-	Combo          c;
-	c._vf32 = _x;
 	return
-		   (c._u32 [0] >> 31)
-		| ((c._u32 [1] >> 30) & 2)
-		| ((c._u32 [2] >> 29) & 4)
-		| ((c._u32 [3] >> 28) & 8);
+		   (bit_cast <uint32_t> (_x [0]) >> 31)
+		| ((bit_cast <uint32_t> (_x [1]) >> 30) & 2)
+		| ((bit_cast <uint32_t> (_x [2]) >> 29) & 4)
+		| ((bit_cast <uint32_t> (_x [3]) >> 28) & 8);
 #elif fstb_ARCHI == fstb_ARCHI_X86
 	return static_cast <unsigned int> (_mm_movemask_ps (_x));
 #elif fstb_ARCHI == fstb_ARCHI_ARM
@@ -1176,12 +1183,7 @@ Vf32	Vf32::zero () noexcept
 Vf32	Vf32::all1 () noexcept
 {
 #if ! defined (fstb_HAS_SIMD)
-	Combo          c;
-	c._s32 [0] = -1;
-	c._s32 [1] = -1;
-	c._s32 [2] = -1;
-	c._s32 [3] = -1;
-	return Vf32 { c._vf32 };
+	return Vf32 { bit_cast <float> (int32_t (-1)) };
 #elif fstb_ARCHI == fstb_ARCHI_X86
 	return _mm_castsi128_ps (_mm_set1_epi32 (-1));
 #elif fstb_ARCHI == fstb_ARCHI_ARM
@@ -1235,15 +1237,16 @@ Vf32	Vf32::set_pair_dbl (float a01, float a23) noexcept
 
 
 // "true" must be 1 and nothing else.
+// The resulting vector has all bits of each group of 32 set to 0 or 1.
 Vf32	Vf32::set_mask (bool m0, bool m1, bool m2, bool m3) noexcept
 {
 #if ! defined (fstb_HAS_SIMD)
-	Combo          c;
-	c._s32 [0] = -int32_t (m0);
-	c._s32 [1] = -int32_t (m1);
-	c._s32 [2] = -int32_t (m2);
-	c._s32 [3] = -int32_t (m3);
-	return c._vf32;
+	return Vf32 (
+		bit_cast <float> (-int32_t (m0)),
+		bit_cast <float> (-int32_t (m1)),
+		bit_cast <float> (-int32_t (m2)),
+		bit_cast <float> (-int32_t (m3))
+	);
 #elif 1 // Fast version
 # if fstb_ARCHI == fstb_ARCHI_X86
 	return _mm_castsi128_ps (_mm_sub_epi32 (
@@ -1284,12 +1287,7 @@ Vf32	Vf32::set_mask (bool m0, bool m1, bool m2, bool m3) noexcept
 Vf32Native	Vf32::signbit_mask () noexcept
 {
 #if ! defined (fstb_HAS_SIMD)
-	Combo          c;
-	c._u32 [0] = 0x80000000U;
-	c._u32 [1] = 0x80000000U;
-	c._u32 [2] = 0x80000000U;
-	c._u32 [3] = 0x80000000U;
-	return c._vf32;
+	return Vf32 (bit_cast <float> (uint32_t (0x80000000U)))._x;
 #elif fstb_ARCHI == fstb_ARCHI_X86
 //	return _mm_set1_ps (-0.f);
 	return _mm_castsi128_ps (_mm_set1_epi32 (0x80000000));
@@ -1476,12 +1474,13 @@ Vf32	Vf32::load (const MEM *ptr) noexcept
 {
 	assert (is_ptr_align_nz (ptr, fstb_SIMD128_ALIGN));
 
+	const auto     nv_ptr = const_cast <std::remove_volatile_t <MEM> *> (ptr);
 #if ! defined (fstb_HAS_SIMD)
-	return *reinterpret_cast <const Vf32 *> (ptr);
+	return *reinterpret_cast <const Vf32 *> (nv_ptr);
 #elif fstb_ARCHI == fstb_ARCHI_X86
-	return _mm_load_ps (reinterpret_cast <const float *> (ptr));
+	return _mm_load_ps (reinterpret_cast <const float *> (nv_ptr));
 #elif fstb_ARCHI == fstb_ARCHI_ARM
-	return vld1q_f32 (reinterpret_cast <const float32_t *> (ptr));
+	return vld1q_f32 (reinterpret_cast <const float32_t *> (nv_ptr));
 #endif // fstb_ARCHI
 }
 
@@ -1492,13 +1491,14 @@ Vf32	Vf32::loadu (const MEM *ptr) noexcept
 {
 	assert (ptr != nullptr);
 
+	const auto     nv_ptr = const_cast <std::remove_volatile_t <MEM> *> (ptr);
 #if ! defined (fstb_HAS_SIMD)
-	return *reinterpret_cast <const Vf32 *> (ptr);
+	return *reinterpret_cast <const Vf32 *> (nv_ptr);
 #elif fstb_ARCHI == fstb_ARCHI_X86
-	return _mm_loadu_ps (reinterpret_cast <const float *> (ptr));
+	return _mm_loadu_ps (reinterpret_cast <const float *> (nv_ptr));
 #elif fstb_ARCHI == fstb_ARCHI_ARM
 	return vreinterpretq_f32_u8 (
-		vld1q_u8 (reinterpret_cast <const uint8_t *> (ptr))
+		vld1q_u8 (reinterpret_cast <const uint8_t *> (nv_ptr))
 	);
 #endif // fstb_ARCHI
 }
@@ -1515,10 +1515,10 @@ Vf32	Vf32::loadu_part (const MEM *ptr, int n) noexcept
 		return loadu (ptr);
 	}
 
-	const float *  f_ptr = reinterpret_cast <const float *> (ptr);
+	const auto     nv_ptr = const_cast <std::remove_volatile_t <MEM> *> (ptr);
+	const float *  f_ptr = reinterpret_cast <const float *> (nv_ptr);
 #if ! defined (fstb_HAS_SIMD)
-	Vf32           v;
-	v._x [0] = f_ptr [0];
+	Vf32           v { f_ptr [0], 0, 0, 0 };
 	for (int i = 1; i < n; ++i)
 	{
 		v._x [i] = f_ptr [i];
@@ -1532,7 +1532,7 @@ Vf32	Vf32::loadu_part (const MEM *ptr, int n) noexcept
 	case 2:
 # if 1
 		return _mm_castsi128_ps (_mm_loadl_epi64 (
-			reinterpret_cast <const __m128i *> (ptr)
+			reinterpret_cast <const __m128i *> (nv_ptr)
 		));
 # else // Higher latency from Skylake
 		return _mm_unpacklo_ps (_mm_load_ss (f_ptr), _mm_load_ss (f_ptr + 1));
@@ -1541,7 +1541,7 @@ Vf32	Vf32::loadu_part (const MEM *ptr, int n) noexcept
 		return _mm_shuffle_ps (
 # if 1
 			_mm_castsi128_ps (_mm_loadl_epi64 (
-				reinterpret_cast <const __m128i *> (ptr)
+				reinterpret_cast <const __m128i *> (nv_ptr)
 			)),
 # else // Higher latency from Skylake
 			_mm_unpacklo_ps (_mm_load_ss (f_ptr), _mm_load_ss (f_ptr + 1)),
@@ -1575,25 +1575,50 @@ Vf32	Vf32::loadu_pair (const MEM *ptr) noexcept
 {
 	assert (ptr != nullptr);
 
+	const auto     nv_ptr = const_cast <std::remove_volatile_t <MEM> *> (ptr);
 #if ! defined (fstb_HAS_SIMD)
-	auto           p = reinterpret_cast <const float *> (ptr);
+	auto           p = reinterpret_cast <const float *> (nv_ptr);
 	return Vf32 { p [0], p [1], 0, 0 };
 #elif fstb_ARCHI == fstb_ARCHI_X86
 # if 1
 	return _mm_castsi128_ps (_mm_loadl_epi64 (
-		reinterpret_cast <const __m128i *> (ptr)
+		reinterpret_cast <const __m128i *> (nv_ptr)
 	));
 # else // Higher latency from Skylake
-	const auto     x0 = _mm_load_ss (reinterpret_cast <const float *> (ptr)    );
-	const auto     x1 = _mm_load_ss (reinterpret_cast <const float *> (ptr) + 1);
+	const auto     x0 =
+		_mm_load_ss (reinterpret_cast <const float *> (nv_ptr)    );
+	const auto     x1 =
+		_mm_load_ss (reinterpret_cast <const float *> (nv_ptr) + 1);
 	return _mm_unpacklo_ps (x0, x1);
 # endif
 #elif fstb_ARCHI == fstb_ARCHI_ARM
 	const float32x2_t x = vreinterpret_f32_u8 (
-		vld1_u8 (reinterpret_cast <const uint8_t *> (ptr))
+		vld1_u8 (reinterpret_cast <const uint8_t *> (nv_ptr))
 	);
 	return vcombine_f32 (x, x);
 #endif // fstb_ARCHI
+}
+
+
+
+Vf32 *	Vf32::ptr_v (Vf32::Scalar *ptr) noexcept
+{
+	return reinterpret_cast <Vf32 *> (ptr);
+}
+
+const Vf32 *	Vf32::ptr_v (const Vf32::Scalar *ptr) noexcept
+{
+	return reinterpret_cast <const Vf32 *> (ptr);
+}
+
+Vf32::Scalar *	Vf32::ptr_s (Vf32 *ptr) noexcept
+{
+	return reinterpret_cast <Scalar *> (ptr);
+}
+
+const Vf32::Scalar *	Vf32::ptr_s (const Vf32 *ptr) noexcept
+{
+	return reinterpret_cast <const Scalar *> (ptr);
 }
 
 
@@ -1613,7 +1638,8 @@ void	Vf32::storeu_part_n13 (MEM *ptr, int n) const noexcept
 	assert (n > 0);
 	assert (n < 4);
 
-	float *        f_ptr = reinterpret_cast <float *> (ptr);
+	const auto     nv_ptr = const_cast <std::remove_volatile_t <MEM> *> (ptr);
+	float *        f_ptr = reinterpret_cast <float *> (nv_ptr);
 
 #if ! defined (fstb_HAS_SIMD)
 
@@ -1702,12 +1728,12 @@ Vf32 operator ^ (Vf32 lhs, const Vf32 &rhs) noexcept
 Vf32	operator == (const Vf32 &lhs, const Vf32 &rhs) noexcept
 {
 #if ! defined (fstb_HAS_SIMD)
-	Vf32::Combo    r;
-	r._s32 [0] = (lhs._x [0] == rhs._x [0]) ? -1 : 0;
-	r._s32 [1] = (lhs._x [1] == rhs._x [1]) ? -1 : 0;
-	r._s32 [2] = (lhs._x [2] == rhs._x [2]) ? -1 : 0;
-	r._s32 [3] = (lhs._x [3] == rhs._x [3]) ? -1 : 0;
-	return r._vf32;
+	Vf32           r;
+	for (int k = 0; k < Vf32::_length; ++k)
+	{
+		r._x [k] = bit_cast <float> ((lhs._x [k] == rhs._x [k]) ? -1 : 0);
+	}
+	return r;
 #elif fstb_ARCHI == fstb_ARCHI_X86
 	return _mm_cmpeq_ps (lhs, rhs);
 #elif fstb_ARCHI == fstb_ARCHI_ARM
@@ -1720,12 +1746,12 @@ Vf32	operator == (const Vf32 &lhs, const Vf32 &rhs) noexcept
 Vf32	operator != (const Vf32 &lhs, const Vf32 &rhs) noexcept
 {
 #if ! defined (fstb_HAS_SIMD)
-	Vf32::Combo    r;
-	r._s32 [0] = (lhs._x [0] != rhs._x [0]) ? -1 : 0;
-	r._s32 [1] = (lhs._x [1] != rhs._x [1]) ? -1 : 0;
-	r._s32 [2] = (lhs._x [2] != rhs._x [2]) ? -1 : 0;
-	r._s32 [3] = (lhs._x [3] != rhs._x [3]) ? -1 : 0;
-	return r._vf32;
+	Vf32           r;
+	for (int k = 0; k < Vf32::_length; ++k)
+	{
+		r._x [k] = bit_cast <float> ((lhs._x [k] != rhs._x [k]) ? -1 : 0);
+	}
+	return r;
 #elif fstb_ARCHI == fstb_ARCHI_X86
 	return _mm_cmpneq_ps (lhs, rhs);
 #elif fstb_ARCHI == fstb_ARCHI_ARM
@@ -1738,12 +1764,12 @@ Vf32	operator != (const Vf32 &lhs, const Vf32 &rhs) noexcept
 Vf32	operator <  (const Vf32 &lhs, const Vf32 &rhs) noexcept
 {
 #if ! defined (fstb_HAS_SIMD)
-	Vf32::Combo    r;
-	r._s32 [0] = (lhs._x [0] < rhs._x [0]) ? -1 : 0;
-	r._s32 [1] = (lhs._x [1] < rhs._x [1]) ? -1 : 0;
-	r._s32 [2] = (lhs._x [2] < rhs._x [2]) ? -1 : 0;
-	r._s32 [3] = (lhs._x [3] < rhs._x [3]) ? -1 : 0;
-	return r._vf32;
+	Vf32           r;
+	for (int k = 0; k < Vf32::_length; ++k)
+	{
+		r._x [k] = bit_cast <float> ((lhs._x [k] < rhs._x [k]) ? -1 : 0);
+	}
+	return r;
 #elif fstb_ARCHI == fstb_ARCHI_X86
 	return _mm_cmplt_ps (lhs, rhs);
 #elif fstb_ARCHI == fstb_ARCHI_ARM
@@ -1756,12 +1782,12 @@ Vf32	operator <  (const Vf32 &lhs, const Vf32 &rhs) noexcept
 Vf32	operator <= (const Vf32 &lhs, const Vf32 &rhs) noexcept
 {
 #if ! defined (fstb_HAS_SIMD)
-	Vf32::Combo    r;
-	r._s32 [0] = (lhs._x [0] <= rhs._x [0]) ? -1 : 0;
-	r._s32 [1] = (lhs._x [1] <= rhs._x [1]) ? -1 : 0;
-	r._s32 [2] = (lhs._x [2] <= rhs._x [2]) ? -1 : 0;
-	r._s32 [3] = (lhs._x [3] <= rhs._x [3]) ? -1 : 0;
-	return r._vf32;
+	Vf32           r;
+	for (int k = 0; k < Vf32::_length; ++k)
+	{
+		r._x [k] = bit_cast <float> ((lhs._x [k] <= rhs._x [k]) ? -1 : 0);
+	}
+	return r;
 #elif fstb_ARCHI == fstb_ARCHI_X86
 	return _mm_cmple_ps (lhs, rhs);
 #elif fstb_ARCHI == fstb_ARCHI_ARM
@@ -1774,12 +1800,12 @@ Vf32	operator <= (const Vf32 &lhs, const Vf32 &rhs) noexcept
 Vf32	operator >  (const Vf32 &lhs, const Vf32 &rhs) noexcept
 {
 #if ! defined (fstb_HAS_SIMD)
-	Vf32::Combo    r;
-	r._s32 [0] = (lhs._x [0] > rhs._x [0]) ? -1 : 0;
-	r._s32 [1] = (lhs._x [1] > rhs._x [1]) ? -1 : 0;
-	r._s32 [2] = (lhs._x [2] > rhs._x [2]) ? -1 : 0;
-	r._s32 [3] = (lhs._x [3] > rhs._x [3]) ? -1 : 0;
-	return r._vf32;
+	Vf32           r;
+	for (int k = 0; k < Vf32::_length; ++k)
+	{
+		r._x [k] = bit_cast <float> ((lhs._x [k] > rhs._x [k]) ? -1 : 0);
+	}
+	return r;
 #elif fstb_ARCHI == fstb_ARCHI_X86
 	return _mm_cmpgt_ps (lhs, rhs);
 #elif fstb_ARCHI == fstb_ARCHI_ARM
@@ -1792,12 +1818,12 @@ Vf32	operator >  (const Vf32 &lhs, const Vf32 &rhs) noexcept
 Vf32	operator >= (const Vf32 &lhs, const Vf32 &rhs) noexcept
 {
 #if ! defined (fstb_HAS_SIMD)
-	Vf32::Combo    r;
-	r._s32 [0] = (lhs._x [0] >= rhs._x [0]) ? -1 : 0;
-	r._s32 [1] = (lhs._x [1] >= rhs._x [1]) ? -1 : 0;
-	r._s32 [2] = (lhs._x [2] >= rhs._x [2]) ? -1 : 0;
-	r._s32 [3] = (lhs._x [3] >= rhs._x [3]) ? -1 : 0;
-	return r._vf32;
+	Vf32           r;
+	for (int k = 0; k < Vf32::_length; ++k)
+	{
+		r._x [k] = bit_cast <float> ((lhs._x [k] >= rhs._x [k]) ? -1 : 0);
+	}
+	return r;
 #elif fstb_ARCHI == fstb_ARCHI_X86
 	return _mm_cmpge_ps (lhs, rhs);
 #elif fstb_ARCHI == fstb_ARCHI_ARM
@@ -1947,16 +1973,18 @@ Vf32 limit (const Vf32 &v, const Vf32 &mi, const Vf32 &ma) noexcept
 Vf32 select (Vf32 cond, Vf32 v_t, Vf32 v_f) noexcept
 {
 #if ! defined (fstb_HAS_SIMD)
-	/*** To do: implement as r = v_f ^ ((v_f ^ v_t) & cond) ***/
-	const Vf32::Combo cc { cond };
-	Vf32::Combo    ct { v_t };
-	Vf32::Combo    cf { v_f };
-	Vf32::Combo    r;
-	r._s32 [0] = (ct._s32 [0] & cc._s32 [0]) | (cf._s32 [0] & ~cc._s32 [0]);
-	r._s32 [1] = (ct._s32 [1] & cc._s32 [1]) | (cf._s32 [1] & ~cc._s32 [1]);
-	r._s32 [2] = (ct._s32 [2] & cc._s32 [2]) | (cf._s32 [2] & ~cc._s32 [2]);
-	r._s32 [3] = (ct._s32 [3] & cc._s32 [3]) | (cf._s32 [3] & ~cc._s32 [3]);
-	return r._vf32;
+	/*** To do:
+	implement as r = v_f ^ ((v_f ^ v_t) & cond) and check if it is faster
+	***/
+	Vf32           r;
+	for (int k = 0; k < Vf32::_length; ++k)
+	{
+		const auto     c = bit_cast <uint32_t> (cond._x [k]);
+		const auto     t = bit_cast <uint32_t> (v_t._x [k]);
+		const auto     f = bit_cast <uint32_t> (v_f._x [k]);
+		r._x [k] = bit_cast <float> ((t & c) | (f & ~c));
+	}
+	return r;
 #elif fstb_ARCHI == fstb_ARCHI_X86
 	const auto     cond_1 = _mm_and_ps (   cond, v_t);
 	const auto     cond_0 = _mm_andnot_ps (cond, v_f);
@@ -1971,11 +1999,14 @@ Vf32 select (Vf32 cond, Vf32 v_t, Vf32 v_f) noexcept
 std::tuple <Vf32, Vf32> swap_if (Vf32 cond, Vf32 lhs, Vf32 rhs) noexcept
 {
 #if ! defined (fstb_HAS_SIMD)
-	const Vf32::Combo cc { cond };
-	if (cc._s32 [0] != 0) { std::swap (lhs._x [0], rhs._x [0]); }
-	if (cc._s32 [1] != 0) { std::swap (lhs._x [1], rhs._x [1]); }
-	if (cc._s32 [2] != 0) { std::swap (lhs._x [2], rhs._x [2]); }
-	if (cc._s32 [3] != 0) { std::swap (lhs._x [3], rhs._x [3]); }
+	for (int k = 0; k < Vf32::_length; ++k)
+	{
+		const auto     c = bit_cast <int32_t> (cond._x [k]);
+		if (c != 0)
+		{
+			std::swap (lhs._x [k], rhs._x [k]);
+		}
+	}
 	return std::make_tuple (lhs, rhs);
 #elif fstb_ARCHI == fstb_ARCHI_X86
 	const auto     inv = _mm_and_ps (_mm_xor_ps (lhs, rhs), cond);
@@ -2031,7 +2062,7 @@ Vf32 log2 (Vf32 v) noexcept
 {
 #if ! defined (fstb_HAS_SIMD)
 
-	assert (v > Vf32 (0));
+	assert (v > Vf32::zero ());
 	/*** To do: actual approximation matching the SIMD formula ***/
 	return Vf32 {
 		logf (v._x [0]) * float (LOG2_E),

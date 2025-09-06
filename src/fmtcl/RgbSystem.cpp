@@ -15,13 +15,6 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 
 
 
-#if defined (_MSC_VER)
-	#pragma warning (1 : 4130 4223 4705 4706)
-	#pragma warning (4 : 4355 4786 4800)
-#endif
-
-
-
 /*\\\ INCLUDE FILES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
 
 #include "fmtcl/RgbSystem.h"
@@ -88,7 +81,7 @@ void	RgbSystem::set (PrimariesPreset preset)
 		_rgb [0] = { 0.670 , 0.330  };
 		_rgb [1] = { 0.210 , 0.710  };
 		_rgb [2] = { 0.140 , 0.080  };
-		_white   = { 0.2848, 0.2932 };
+		_white   = { 0.28315, 0.29711 };
 		break;
 	case PrimariesPreset_BT470BG:
 		_rgb [0] = { 0.640 , 0.330  };

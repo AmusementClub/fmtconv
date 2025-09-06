@@ -1,6 +1,6 @@
 /*****************************************************************************
 
-        fnc.cpp
+        fnc_fstb.cpp
         Author: Laurent de Soras, 2010
 
 --- Legal stuff ---
@@ -14,11 +14,6 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 *Tab=3***********************************************************************/
 
 
-
-#if defined (_MSC_VER)
-	#pragma warning (1 : 4130 4223 4705 4706)
-	#pragma warning (4 : 4355 4786 4800)
-#endif
 
 
 

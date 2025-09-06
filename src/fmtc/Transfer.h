@@ -15,13 +15,9 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 
 
 
+#pragma once
 #if ! defined (fmtc_Transfer_HEADER_INCLUDED)
 #define	fmtc_Transfer_HEADER_INCLUDED
-
-#if defined (_MSC_VER)
-	#pragma once
-	#pragma warning (4 : 4250)
-#endif
 
 
 

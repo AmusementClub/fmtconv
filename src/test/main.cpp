@@ -15,12 +15,6 @@ http://www.wtfpl.net/ for more details.
 
 
 
-#if defined (_MSC_VER)
-	#pragma warning (4 : 4786 4800)
-#endif
-
-
-
 /*\\\ INCLUDE FILES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
 
 #include "fstb/def.h"

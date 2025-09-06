@@ -15,13 +15,9 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 
 
 
+#pragma once
 #if ! defined (vsutl_fnc_HEADER_INCLUDED)
 #define	vsutl_fnc_HEADER_INCLUDED
-
-#if defined (_MSC_VER)
-	#pragma once
-	#pragma warning (4 : 4250)
-#endif
 
 
 
@@ -42,6 +38,7 @@ bool     is_vs_rgb (int cf);
 bool     is_vs_yuv (int cf);
 bool     is_vs_same_colfam (int lhs, int rhs);
 
+bool     is_constant_colorspace (const ::VSVideoInfo &vi);
 bool     is_constant_format (const ::VSVideoInfo &vi);
 bool     has_chroma (int cf);
 bool     has_chroma (const ::VSVideoFormat &fmt);

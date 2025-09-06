@@ -15,13 +15,6 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 
 
 
-#if defined (_MSC_VER)
-	#pragma warning (1 : 4130 4223 4705 4706)
-	#pragma warning (4 : 4355 4786 4800)
-#endif
-
-
-
 /*\\\ INCLUDE FILES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
 
 #include "fstb/fnc.h"
@@ -69,9 +62,16 @@ bool	is_vs_same_colfam (int lhs, int rhs)
 
 
 
+bool	is_constant_colorspace (const ::VSVideoInfo &vi)
+{
+	return (vi.format.colorFamily != ::cfUndefined);
+}
+
+
+
 bool	is_constant_format (const ::VSVideoInfo &vi)
 {
-	return (vi.height > 0 && vi.width > 0 && vi.format.colorFamily != ::cfUndefined);
+	return (vi.height > 0 && vi.width > 0 && is_constant_colorspace (vi));
 }
 
 

@@ -285,6 +285,7 @@ commonsrc = \
         ../../src/fstb/AllocAlign.hpp \
         ../../src/fstb/ArrayAlign.h \
         ../../src/fstb/ArrayAlign.hpp \
+        ../../src/fstb/bit_cast.h \
         ../../src/fstb/CpuId.cpp \
         ../../src/fstb/CpuId.h \
         ../../src/fstb/def.h \
@@ -297,10 +298,14 @@ commonsrc = \
         ../../src/fstb/SingleObj.hpp \
         ../../src/fstb/Vf32.h \
         ../../src/fstb/Vf32.hpp \
+        ../../src/fstb/Vf32Native.h \
         ../../src/fstb/Vs32.h \
         ../../src/fstb/Vs32.hpp \
+        ../../src/fstb/Vs32Native.h \
         ../../src/fstb/Vu32.h \
         ../../src/fstb/Vu32.hpp \
+        ../../src/fstb/Vu32Native.h \
+        ../../src/fstb/Vx32_conv.h \
         ../../src/avstp.h \
         ../../src/AvstpWrapper.cpp \
         ../../src/AvstpWrapper.h
