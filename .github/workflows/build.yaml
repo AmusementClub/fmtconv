@@ -12,12 +12,12 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
 
     - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1
+      uses: microsoft/setup-msbuild@v2
 
     - name: Install Windows 8.1 SDK
       shell: powershell
@@ -52,13 +52,13 @@ jobs:
         exe/zip.exe -9r fmtconv-release.zip "$dir"/
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v1.0.0
+      uses: actions/upload-artifact@v4
       with:
         name: fmtconv-release
         path: "build/win/fmtconv-release.zip"
 
     - name: Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       if: github.event_name == 'release'
       with:
         files: "build/win/fmtconv-release.zip"
