@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "vapoursynth-fmtconv"
-version = "30.90"
+version = "31"
 description = "Format conversion tools for Vapoursynth and Avisynth+"
 requires-python = ">=3.12"
 readme = "README.md"
