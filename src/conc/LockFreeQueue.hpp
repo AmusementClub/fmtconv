@@ -137,7 +137,7 @@ typename LockFreeQueue <T>::CellType *	LockFreeQueue <T>::dequeue () noexcept
 	}
 	while (true);
 
-	if (head_ptr == &_m_ptr->_dummy)   // check wether we’re trying to pop the dummy cell
+	if (head_ptr == &_m_ptr->_dummy)   // check wether we're trying to pop the dummy cell
 	{
 		enqueue (*head_ptr);    // this is the dummy cell: push it back to the fifo
 		head_ptr = dequeue ();  // and pop a cell again
