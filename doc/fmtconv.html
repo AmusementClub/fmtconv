@@ -79,6 +79,23 @@ This does not mean it is slow or unoptimized, but fmtconv is clearly not on par 
 
 <h2><a id="usage"></a>II) Usage</h2>
 
+<h3><a id="loading"></a>Installation</h3>
+
+<p>Delivered binary files are only for Windows on x64 and x86.
+Other platforms may be supported but must be <a href="#compiling">compiled
+from the source</a>.</p>
+
+<p>With Vapoursynth r74 or above on Windows x64, you can now run the following
+commande line to install the library:</p>
+<pre class="term">pip install vapoursynth-fmtconv</pre>
+<p>Otherwise, you’ll have to install the plug-in manually.
+In the archive, open the <code>win64</code> (most likely nowadays) or
+<code>win32</code> folder, depending on your Vapoursynth or Avisynth+ setup.
+Copy <code>fmtconv.dll</code> to your plug-in folder, which may be:</p>
+<p><span class="host">Vapoursynth</span> <code>C:\Users\[username]\AppData\Roaming\VapourSynth\plugins64</code></p>
+<p><span class="host">Avisynth+</span> <code>C:\Program Files\AviSynth+\plugins64+</code></p>
+<p>That’s it!</p>
+
 <h3><a id="loading"></a>Loading fmtconv</h3>
 
 <p>Using the Python 3.8 interface (or a higher version, it depends on your

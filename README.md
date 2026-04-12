@@ -18,3 +18,7 @@ This does not mean it is slow or unoptimized, but fmtconv is clearly not on par 
 See `doc/fmtconv.html` for more information.
 
 Support on the Doom9 forums: [Vapoursynth](http://forum.doom9.org/showthread.php?t=166504) and [Avisynth+](https://forum.doom9.org/showthread.php?t=183139).
+
+On Windows/x64, from VapourSynth r74, the fmtconv library can be installed with the following command:
+
+`pip install vapoursynth-fmtconv`
