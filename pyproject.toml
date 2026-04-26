@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling", "packaging", "meson"]
+requires = ["hatchling==1.29.0", "packaging==26.1"]
 build-backend = "hatchling.build"
 
 [project]
@@ -15,9 +15,15 @@ maintainers = [{ name = "Laurent de Soras", email = "laurent.de.soras@free.fr" }
 
 dependencies = ["vapoursynth>=74"]
 
+[dependency-groups]
+dev = ["hatchling==1.29.0", "packaging==26.1"]
+
 [project.urls]
 Repository = "https://gitlab.com/EleonoreMizo/fmtconv"
 Issues = "https://gitlab.com/EleonoreMizo/fmtconv/-/work_items/"
+
+[tool.hatch.build.targets.sdist]
+include = ["build", "doc", "src"]
 
 [tool.hatch.build.targets.wheel]
 include = ["vapoursynth/plugins"]
