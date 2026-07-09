@@ -342,7 +342,9 @@ TransUtil::OpSPtr	TransUtil::conv_curve_to_op (TransCurve c, bool inv_flag, Tran
 		ptr = OpSPtr (new TransOp2084 (inv_flag));
 		break;
 	case TransCurve_428:
-		ptr = OpSPtr (new TransOpPow (inv_flag, 2.6, 48.0 / 52.37, 1, 52.37, 48));
+		ptr = OpSPtr (new TransOpPow (
+			inv_flag, 2.6, pow (48.0 / 52.37, 1 / 2.6), 52.37 / 48, 48, 52.37
+		));
 		break;
 	case TransCurve_HLG:
 		ptr = OpSPtr (new TransOpHlg (inv_flag));
