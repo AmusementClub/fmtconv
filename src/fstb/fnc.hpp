@@ -229,7 +229,7 @@ constexpr bool	is_pow_2 (T x) noexcept
 
 double	round (double x) noexcept
 {
-	return floor (x + 0.5f);
+	return floor (x + 0.5);
 }
 
 

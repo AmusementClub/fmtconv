@@ -212,19 +212,7 @@ Matrix::Matrix (::IScriptEnvironment &env, const ::AVSValue &args)
 	}
 
 	// Fixes the output colorspace to a valid H265 colorspace
-	switch (_csp_out)
-	{
-	case fmtcl::ColorSpaceH265_LMS:
-		_csp_out = fmtcl::ColorSpaceH265_RGB;
-		break;
-	case fmtcl::ColorSpaceH265_ICTCP_PQ:
-	case fmtcl::ColorSpaceH265_ICTCP_HLG:
-		_csp_out = fmtcl::ColorSpaceH265_ICTCP;
-		break;
-	default:
-		// Nothing to do
-		break;
-	}
+	_csp_out = fmtcl::MatrixUtil::fix_output_csp (_csp_out);
 
 	// Sets the output colorspace accordingly
 	if (_plane_out < 0)
@@ -410,36 +398,12 @@ FmtAvs	Matrix::get_output_colorspace (::IScriptEnvironment &env, const ::AVSValu
 
 FmtAvs	Matrix::find_dst_col_fam (fmtcl::ColorSpaceH265 tmp_csp, FmtAvs fmt_dst, const FmtAvs &fmt_src)
 {
-	fmtcl::ColorFamily   alt_cf = fmtcl::ColorFamily_INVALID;
-
-	switch (tmp_csp)
-	{
-	case fmtcl::ColorSpaceH265_RGB:
-	case fmtcl::ColorSpaceH265_BT709:
-	case fmtcl::ColorSpaceH265_FCC:
-	case fmtcl::ColorSpaceH265_BT470BG:
-	case fmtcl::ColorSpaceH265_SMPTE170M:
-	case fmtcl::ColorSpaceH265_SMPTE240M:
-	case fmtcl::ColorSpaceH265_YCGCO:
-	case fmtcl::ColorSpaceH265_BT2020NCL:
-	case fmtcl::ColorSpaceH265_BT2020CL:
-	case fmtcl::ColorSpaceH265_YDZDX:
-	case fmtcl::ColorSpaceH265_CHRODERNCL:
-	case fmtcl::ColorSpaceH265_CHRODERCL:
-	case fmtcl::ColorSpaceH265_ICTCP:
-	case fmtcl::ColorSpaceH265_ICTCP_PQ:
-	case fmtcl::ColorSpaceH265_ICTCP_HLG:
-		alt_cf = fmtcl::ColorFamily_YUV;
-		break;
-
-	case fmtcl::ColorSpaceH265_LMS:
-		alt_cf = fmtcl::ColorFamily_RGB;
-		break;
-
-	default:
-		// Nothing
-		break;
-	}
+	const auto     alt_cf = fmtcl::MatrixUtil::select_target_color_family (
+		tmp_csp,
+		fmtcl::ColorFamily_INVALID,
+		fmtcl::ColorFamily_RGB,
+		fmtcl::ColorFamily_YUV
+	);
 
 	if (alt_cf != fmtcl::ColorFamily_INVALID)
 	{

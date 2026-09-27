@@ -49,6 +49,8 @@ public:
 	               find_cs_from_mat_str (const std::string &mat, bool allow_2020cl_flag);
 	static ColorFamily
 	               find_cf_from_cs (ColorSpaceH265 cs);
+	static ColorSpaceH265
+	               fix_output_csp (ColorSpaceH265 cs);
 
 	static int     make_mat_from_str (Mat4 &m, const std::string &mat, bool to_rgb_flag);
 	static void    make_mat_yuv (Mat4 &m, double kr, double kg, double kb, bool to_rgb_flag);
@@ -56,6 +58,10 @@ public:
 	static void    make_mat_ydzdx (Mat4 &m, bool to_rgb_flag);
 	static void    make_mat_lms (Mat4 &m, bool to_rgb_flag);
 	static void    make_mat_ictcp (Mat4 &m, bool hlg_flag, bool to_lms_flag);
+	static void    make_mat_iptc2 (Mat4 &m, bool to_lms_flag);
+
+	template <typename T>
+	static T       select_target_color_family (ColorSpaceH265 tmp_csp, T cf_invalid, T cf_rgb, T cf_yuv) noexcept;
 
 
 
@@ -91,7 +97,7 @@ private:
 
 
 
-//#include "fmtcl/MatrixUtil.hpp"
+#include "fmtcl/MatrixUtil.hpp"
 
 
 

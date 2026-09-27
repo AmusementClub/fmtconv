@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling==1.29.0", "packaging==26.1"]
+build-backend = "hatchling.build"
+
+[project]
+name = "vapoursynth-fmtconv"
+version = "31"
+description = "Format conversion tools for Vapoursynth and Avisynth+"
+requires-python = ">=3.12"
+readme = "README.md"
+license = "WTFPL"
+license-files = ["COPYING"]
+authors = [{ name = "Laurent de Soras", email = "laurent.de.soras@free.fr" }]
+maintainers = [{ name = "Laurent de Soras", email = "laurent.de.soras@free.fr" }]
+
+dependencies = ["vapoursynth>=74"]
+
+[dependency-groups]
+dev = ["hatchling==1.29.0", "packaging==26.1"]
+
+[project.urls]
+Repository = "https://gitlab.com/EleonoreMizo/fmtconv"
+Issues = "https://gitlab.com/EleonoreMizo/fmtconv/-/work_items/"
+
+[tool.hatch.build.targets.sdist]
+include = ["build", "doc", "src"]
+
+[tool.hatch.build.targets.wheel]
+include = ["vapoursynth/plugins"]
+artifacts = [
+    "vapoursynth/plugins/*.dylib",
+    "vapoursynth/plugins/*.so",
+    "vapoursynth/plugins/*.dll",
+]
+
+[tool.hatch.build.targets.wheel.hooks.custom]
+path = "hatch_build.py"

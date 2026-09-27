@@ -3,6 +3,10 @@
         TransOpSLog3.h
         Author: Laurent de Soras, 2016
 
+Ref:
+Technical Summary for S-Gamut3.Cine/S-Log3 and S-Gamut3/S-Log3
+https://pro.sony/s3/cms-static-content/uploadfile/06/1237494271406.pdf
+
 --- Legal stuff ---
 
 This program is free software. It comes without any warranty, to
@@ -59,8 +63,18 @@ protected:
 
 private:
 
-	static double  log_to_lin (double x);
-	static double  lin_to_log (double x);
+	static constexpr double _range = 1023.0;
+	static constexpr double _bot   =   64.0;
+	static constexpr double _black =   95.0;
+	static constexpr double _grey  =  420.0;
+	static constexpr double _white =  598.0;
+	static constexpr double _top   =  940.0;
+
+	static double  zoom_out (double x) noexcept;
+	static double  zoom_in (double x) noexcept;
+
+	static double  log_to_lin (double x) noexcept;
+	static double  lin_to_log (double x) noexcept;
 
 	const bool     _inv_flag;
 

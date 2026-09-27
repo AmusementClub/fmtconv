@@ -49,9 +49,18 @@ TransOpSLog3::TransOpSLog3 (bool inv_flag)
 
 double	TransOpSLog3::do_convert (double x) const
 {
-	x = std::max (x, 0.0);
+	if (_inv_flag)
+	{
+		x = zoom_out (x);
+		x = log_to_lin (x);
+	}
+	else
+	{
+		x = lin_to_log (x);
+		x = zoom_in (x);
+	}
 
-	return (_inv_flag) ? log_to_lin (x) : lin_to_log (x);
+	return x;
 }
 
 
@@ -59,10 +68,10 @@ double	TransOpSLog3::do_convert (double x) const
 TransOpInterface::LinInfo	TransOpSLog3::do_get_info () const
 {
 	return {
-		Type::UNDEF,
+		Type::OETF,
 		Range::UNDEF,
 		log_to_lin (1.0),
-		log_to_lin (598.0 / 1023.0),
+		log_to_lin (_white / _range),
 		0.0, 0.0
 	};
 }
@@ -73,22 +82,44 @@ TransOpInterface::LinInfo	TransOpSLog3::do_get_info () const
 
 
 
-double	TransOpSLog3::log_to_lin (double x)
+/*
+convert() prototype maps x in [0.0 ; 1.0] to the limited range on the "coded"
+side (usually 16-235 in 8 bits, or 64-940 in 10 bits) so 0.0 is black and 1.0
+white. However S-Log3 formulas use [0.0 ; 1.0] as full-range equivalent, so
+we have to stretch the coded side. From the transfer() user perspective, this
+requires specifying the coded range as limited.
+*/
+
+double	TransOpSLog3::zoom_out (double x) noexcept
 {
-	return
-		  (x < 171.2102946929 / 1023.0)
-		? (x * 1023.0 - 95.0) * 0.01125000 / (171.2102946929 - 95.0)
-		: (pow (10, (x * 1023.0 - 420.0) / 261.5)) * (0.18 + 0.01) - 0.01;
+	return (x * (_top - _bot) + _bot) / _range;
 }
 
 
 
-double	TransOpSLog3::lin_to_log (double x)
+double	TransOpSLog3::zoom_in (double x) noexcept
+{
+	return (x * _range - _bot) / (_top - _bot);
+}
+
+
+
+double	TransOpSLog3::log_to_lin (double x) noexcept
+{
+	return
+		  (x < 171.2102946929 / _range)
+		? (x * _range - _black) * 0.01125000 / (171.2102946929 - _black)
+		: (pow (10, (x * _range - _grey) / 261.5)) * (0.18 + 0.01) - 0.01;
+}
+
+
+
+double	TransOpSLog3::lin_to_log (double x) noexcept
 {
 	return
 		  (x < 0.01125000)
-		? (x * (171.2102946929 - 95.0) / 0.01125000 + 95.0) / 1023.0
-		: (420.0 + log10 ((x + 0.01) / (0.18 + 0.01)) * 261.5) / 1023.0;
+		? (x * (171.2102946929 - _black) / 0.01125000 + _black) / _range
+		: (_grey + log10 ((x + 0.01) / (0.18 + 0.01)) * 261.5) / _range;
 }
 
 

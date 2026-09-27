@@ -15,7 +15,7 @@
 
 <table class="n">
 <tr><td class="n"><b>Authors:     </b></td><td class="n">&nbsp;</td><td class="n">Firesledge (aka Cretindesalpes)</td></tr>
-<tr><td class="n"><b>Version:     </b></td><td class="n">&nbsp;</td><td class="n">r30</td></tr>
+<tr><td class="n"><b>Version:     </b></td><td class="n">&nbsp;</td><td class="n">r31</td></tr>
 <tr><td class="n"><b>Download:    </b></td><td class="n">&nbsp;</td><td class="n"><a href="https://ldesoras.fr/prod.html#src_fmtconv">https://ldesoras.fr/prod.html</a></td></tr>
 <tr><td class="n"><b>Category:    </b></td><td class="n">&nbsp;</td><td class="n">Format tools</td></tr>
 <tr><td class="n"><b>Requirements:</b></td><td class="n">&nbsp;</td><td class="n"><a href="http://www.vapoursynth.com/">Vapoursynth r55</a> or <a href="https://avs-plus.net/">Avisynth+ 3.7.0</a></td></tr>
@@ -78,6 +78,23 @@ This does not mean it is slow or unoptimized, but fmtconv is clearly not on par 
 
 
 <h2><a id="usage"></a>II) Usage</h2>
+
+<h3><a id="loading"></a>Installation</h3>
+
+<p>Delivered binary files are only for Windows on x64 and x86.
+Other platforms may be supported but must be <a href="#compiling">compiled
+from the source</a>.</p>
+
+<p>With Vapoursynth r74 or above on Windows x64, you can now run the following
+commande line to install the library:</p>
+<pre class="term">pip install vapoursynth-fmtconv</pre>
+<p>Otherwise, you’ll have to install the plug-in manually.
+In the archive, open the <code>win64</code> (most likely nowadays) or
+<code>win32</code> folder, depending on your Vapoursynth or Avisynth+ setup.
+Copy <code>fmtconv.dll</code> to your plug-in folder, which may be:</p>
+<p><span class="host">Vapoursynth</span> <code>C:\Users\[username]\AppData\Roaming\VapourSynth\plugins64</code></p>
+<p><span class="host">Avisynth+</span> <code>C:\Program Files\AviSynth+\plugins64+</code></p>
+<p>That’s it!</p>
 
 <h3><a id="loading"></a>Loading fmtconv</h3>
 
@@ -183,7 +200,7 @@ c = c.fmtc.matrix (mat="709")
 c = c.fmtc.resample (css="420")
 c = c.fmtc.bitdepth (bits=8)</pre>
 
-<p>Conversion from full range to TV-range:</p>
+<p>Conversion from full range to limited range:</p>
 
 <pre class="src">c = c.fmtc.bitdepth (fulls=True, fulld=False)</pre>
 
@@ -313,7 +330,7 @@ fmtc.bitdepth (
 <p>Dithering is performed when meeting at least one of these conditions:</p>
 <ul>
 <li>Reducing the bitdepth of integer data, or converting from float to integer.</li>
-<li>Doing a full-range ↔ TV-range conversion between integer formats, because the resulting values haven’t an exact representation.</li>
+<li>Doing a full range ↔ limited range conversion between integer formats, because the resulting values haven’t an exact representation.</li>
 </ul>
 
 <p>Video compression seems to retrain better pure ordered (Bayer) dithering.
@@ -388,22 +405,22 @@ The planes are identified by their index, as well as the following aliases:</p>
 </table>
 
 <p class="var">fulls, fulld</p>
-<p>Indicates if the clip is full-range (True) or TV-range (False).
+<p>Indicates if the clip is full range (True) or limited range (False).
 <var>fulls</var> is for input, <var>fulld</var> for output.
 Reference black and white have different values depending on the range.
 In 8 bits, pixel values scale from 0 to 255 in full range, and 16 to 235
-in TV-range (16 to 240 for the YUV chroma planes).
+in limited range (16 to 240 for the YUV chroma planes).
 This value has no meaning for float data.</p>
 <p>The default value depends on the colorspace.
-For example, full-range is assumed for RGB and YCoCg colorspaces.
-Others are assumed TV-range.
+For example, full range is assumed for RGB and YCoCg colorspaces.
+Others are assumed limited range.
 These parameters are mainly intended to guide conversions between integer
 and floating-point data.
 They can also be used for range conversions.
-Pixel values are not clipped during a conversion between two TV-range
+Pixel values are not clipped during a conversion between two limited range
 formats.</p>
 <p><span class="host">Avisynth+</span> Alpha planes are always processed
-as full-range.<p>
+as full range.<p>
 
 <p class="var">dmode</p>
 <p>Dithering mode, when applicable.</p>
@@ -676,8 +693,9 @@ Use both when you want to do a conversion between BT.601 and BT.709.
 Values are the same as <var>mat</var>, with the addition of:</p>
 <table>
 <tr><td><b><code>"LMS"</code></b></td><td>Intermediate colorspace for IC<sub>T</sub>C<sub>P</sub> transforms. The LMS colorspace is conveyed on RGB planes.</td></tr>
-<tr><td><b><code>"ICtCp_PQ"</code></b></td><td>ITU-R BT.2100-2 IC<sub>T</sub>C<sub>P</sub> with perceptual quantization (PQ).</td></tr>
-<tr><td><b><code>"ICtCp_HLG"</code></b></td><td>ITU-R BT.2100-2 IC<sub>T</sub>C<sub>P</sub> with hybrid log-gamma transfer function (HLG).</td></tr>
+<tr><td><b><code>"ICtCp_PQ"</code></b></td><td>ITU-R BT.2100-2 IC<sub>T</sub>C<sub>P</sub> with perceptual quantization (PQ), to and from L’M’S’ signals.</td></tr>
+<tr><td><b><code>"ICtCp_HLG"</code></b></td><td>ITU-R BT.2100-2 IC<sub>T</sub>C<sub>P</sub> with hybrid log-gamma transfer function (HLG), to and from L’M’S’ signals.</td></tr>
+<tr><td><b><code>"IPT_C2"</code></b></td><td>SMPTE ST 2128 IPT-PQ-C2, to and from L’M’S’ signals. It is not known if these L’M’S’ signals are of the same form as the IC<sub>T</sub>C<sub>P</sub> ones.</td></tr>
 </table>
 <p>When using one of these additional values, make sure to set the other <var>mats</var> or <var>matd</var> with <code>"rgb"</code> to clarify the conversion direction.
 IC<sub>T</sub>C<sub>P</sub> transforms from R’G’B’ require the following steps:</p>
@@ -691,19 +709,19 @@ IC<sub>T</sub>C<sub>P</sub> transforms from R’G’B’ require the following s
 Beware, chromatic information for pixels of the highest luminance range cannot be represented in integer IC<sub>T</sub>C<sub>P</sub> and will be clipped because of the large matrix coefficients.</p>
 
 <p class="var">fulls, fulld</p>
-<p>Indicates if the clip is full-range (True) or TV-range (False).
+<p>Indicates if the clip is full range (True) or limited range (False).
 <var>fulls</var> is for input, <var>fulld</var> for output.
 Reference black and white have different values depending on the range.
 In 8 bits, pixel values scale from 0 to 255 in full range, and 16 to 235
-in TV-range (16 to 240 for the YUV chroma planes).
+in limited range (16 to 240 for the YUV chroma planes).
 This value has no meaning for float data.</p>
 <p>The default value depends on the colorspace.
-For example, full-range is assumed for R’G’B’ and Y’Co’Cg’ colorspaces.
-Others are assumed TV-range.
+For example, full range is assumed for R’G’B’ and Y’Co’Cg’ colorspaces.
+Others are assumed limited range.
 These parameters are mainly intended to guide conversions between integer
 and floating-point data.
 They can also be used for range conversions.
-Pixel values are not clipped during a conversion between two TV-range
+Pixel values are not clipped during a conversion between two limited range
 formats.</p>
 
 <p class="var">coef</p>
@@ -831,13 +849,13 @@ The parameter is the plane index, ranging from 0 to 2.
 A negative value specifies that all planes should be processed.
 If <var>singleout</var> is &ge;&nbsp;0, it supersedes the colorspace
 family specified in <var>csp</var>.</p>
-<p>Note: when extracting a chroma plane, results between int with TV range and
-float data type may slightly differ.
+<p>Note: when extracting a chroma plane, results between int with limited
+range and float data type may slightly differ.
 This is because in float, a neutral chroma (0%) is converted to the exact
 value of a medium gray (50%).
 In integer, the chroma output value is mapped 1&ndash;1 to the luma channel.
-However in TV-range, medium gray is not located exactly at the half of the
-data range, it lies slightly below.</p>
+However in limited range, medium gray is not located exactly at the half of
+the data range, it lies slightly below.</p>
 
 <p class="var">cpuopt</p>
 <p>Limits the CPU instruction set.
@@ -916,10 +934,11 @@ Supported input formats:</p>
 supported too.<p>
 
 <p class="var">full</p>
-<p>Indicates if the Y’Cb’Cr’ clip is full-range (True) or TV-range (False).
+<p>Indicates if the Y’Cb’Cr’ clip is full range (True) or limited range
+(False).
 Reference black and white have different values depending on the range.
 In 8 bits, pixel values scale from 0 to 255 in full range, and 16 to 235
-in TV-range (16 to 240 for the YUV chroma planes).
+in limited range (16 to 240 for the YUV chroma planes).
 This value has no meaning for float data.</p>
 
 <p class="var">csp</p>
@@ -1473,7 +1492,7 @@ in Masktools 2.</p>
 <table>
 <tr><td><b>&minus;65535</b><br />to <b>&plus;0.5</b></td><td>All the pixels of the plane will be set to &minus;x (the opposite of the specified value). The range depends on the output data type. Remember, in floating-point YUV, the chroma planes range from &minus;0.5 to &plus;0.5.</td></tr>
 <tr><td><b>1</b></td><td>The plane will not be processed. This means that the content of the output plane is pure garbage.</td></tr>
-<tr><td><b>2</b></td><td>The plane of the input clip will be copied and possibly cropped. Areas out of the input picture are left unprocessed (garbage). Range (full or TV) conversions are ignored.</td></tr>
+<tr><td><b>2</b></td><td>The plane of the input clip will be copied and possibly cropped. Areas out of the input picture are left unprocessed (garbage). Range (full or limited) conversions are ignored.</td></tr>
 <tr><td><b>3</b></td><td>The plane will be processed (default).</td></tr>
 </table>
 <p><span class="host">Avisynth+</span> The parameter can also be specified as
@@ -1482,19 +1501,19 @@ See the <var>planes</var> parameter from the <code>fmtc_bitdepth</code>
 function for more details.</p>
 
 <p class="var">fulls, fulld</p>
-<p>Indicates if the clip is full-range (True) or TV-range (False).
+<p>Indicates if the clip is full range (True) or limited range (False).
 <var>fulls</var> is for input, <var>fulld</var> for output.
 Reference black and white have different values depending on the range.
 In 8 bits, pixel values scale from 0 to 255 in full range, and 16 to 235
-in TV-range (16 to 240 for the Y’Cb’Cr’ chroma planes).
+in limited range (16 to 240 for the Y’Cb’Cr’ chroma planes).
 This value has no meaning for float data.</p>
 <p>The default value depends on the colorspace.
-For example, full-range is assumed for RGB and YCoCg colorspaces.
-Others are assumed TV-range.
+For example, full range is assumed for RGB and YCoCg colorspaces.
+Others are assumed limited range.
 These parameters are mainly intended to guide conversions between integer
 and floating-point data.
 They can also be used for range conversions.
-Pixel values are not clipped during a conversion between two TV-range
+Pixel values are not clipped during a conversion between two limited range
 formats.</p>
 
 <p class="var">center</p>
@@ -1738,6 +1757,11 @@ Use <code>bitdepth</code> to properly convert the output to a lower
 bitdepth.</p>
 <p>The signal may be clipped depending on the transfer specification or the
 domain requirement of the functions.</p>
+<p>Keep in mind that some proprietary transfer curves are intended to be used
+with integer coding in limited range (black and white at 16 and 235 in 8 bits
+or equivalent values at higher bit depth).
+Default settings scales black and white to full range, so it may be necessary
+to specify the range explicitely.</p>
 <p>The function sets the <code>_ColorRange</code> and <code>_Transfer</code>
 frame properties.</p>
 <p><span class="host">Avisynth+</span>  Colorspaces with an alpha channel are
@@ -1797,9 +1821,9 @@ cd/m<sup>2</sup>, whereas scene-referred linear scales are arbitrary.</p>
 <tr><td><b><code>&quot;1886&quot;      </code></b></td><td>0&hellip;1</td><td>EOTF</td><td>SDR</td><td>ITU-R BT.1886. Intended to mimicing a CRT display curve. Peak white is 100 cd/m<sup>2</sup>.</td></tr>
 <tr><td><b><code>&quot;1886a&quot;     </code></b></td><td>0&hellip;1</td><td>EOTF</td><td>SDR</td><td>ITU-R BT.1886, alternative approximation</td></tr>
 <tr><td><b><code>&quot;filmstream&quot;</code></b></td><td>0&hellip;1</td><td>OETF</td><td></td><td>Thomson FilmStream<br />Linear 1.0 is the sensor clipping level, corresponding to 3840 on a linear 12-bit scale.</td></tr>
-<tr><td><b><code>&quot;slog&quot;      </code></b></td><td>&minus;0.006&hellip;10</td><td>OETF</td><td></td><td>Sony S-Log<br />Linear 1.0 is the reference white, peak white is at 10.0.</td></tr>
-<tr><td><b><code>&quot;slog2&quot;     </code></b></td><td>&minus;0.0085&hellip;14.13</td><td>OETF</td><td></td><td>Sony S-Log 2<br />Linear 1.0 is the reference white, peak white is at 14.13.</td></tr>
-<tr><td><b><code>&quot;slog3&quot;     </code></b></td><td>0&hellip;38.421</td><td>OETF</td><td></td><td>Sony S-Log3.</td></tr>
+<tr><td><b><code>&quot;slog&quot;      </code></b></td><td>&minus;0.021&hellip;10.82</td><td>OETF</td><td></td><td>Sony S-Log<br />To be used in limited range on the coded side.<br />Reference white&nbsp;: 1.0 linear, 0.653 encoded. Black&nbsp;: 0.03 encoded. Peak white&nbsp;: 10.82 linear.</td></tr>
+<tr><td><b><code>&quot;slog2&quot;     </code></b></td><td>&minus;0.0295&hellip;15.287</td><td>OETF</td><td></td><td>Sony S-Log 2<br />To be used in limited range on the coded side.<br />Reference white&nbsp;: 1.0 linear, 0.591 encoded. Black&nbsp;: 0.03 encoded. Peak white&nbsp;: 15.287 linear.</td></tr>
+<tr><td><b><code>&quot;slog3&quot;     </code></b></td><td>0&hellip;38.421</td><td>OETF</td><td></td><td>Sony S-Log3<br />To be used in limited range on the coded side.<br />Reference white&nbsp;: 0.9 linear, 0.61 encoded. Black&nbsp;: 0.035 encoded. Peak white&nbsp;: 38.421 linear.</td></tr>
 <tr><td><b><code>&quot;logc2&quot;     </code></b></td><td>Unspecified</td><td>OETF</td><td></td><td>Arri Log C Alexa 2.x, linear scene exposure<br />Peak white is 57.45 linear. The negative part of the range allows coding sensor noise. <var>logceis</var> and <var>logceid</var> set the Exposure Index (EI).</td></tr>
 <tr><td><b><code>&quot;logc3&quot;     </code></b></td><td>Unspecified</td><td>OETF</td><td></td><td>Arri Log C Alexa 3.x, linear scene exposure<br />Peak white is 55.08 linear. The negative part of the range allows coding sensor noise. <var>logceis</var> and <var>logceid</var> set the Exposure Index (EI).</td></tr>
 <tr><td><b><code>&quot;logc4&quot;     </code></b></td><td>Unspecified</td><td>OETF</td><td></td><td>Arri LogC4, linear scene exposure<br />Peak white is 469.80 but this is only a hardware limit.</td></tr>
@@ -1845,11 +1869,11 @@ This parameter shouldn’t conflict with flt.</p>
 or to 1 to convert to floating point data.</p>
 
 <p class="var">fulls, fulld</p>
-<p>Indicates if the clip is full-range (True) or TV-range (False).
+<p>Indicates if the clip is full range (True) or limited range (False).
 <var>fulls</var> is for input, <var>fulld</var> for output.
 Reference black and white have different values depending on the range.
 In 8 bits, pixel values scale from 0 to 255 in full range, and 16 to 235
-in TV-range (16 to 240 for the Y’Cb’Cr’ chroma planes).
+in limited range (16 to 240 for the Y’Cb’Cr’ chroma planes).
 This value has no meaning for float data.</p>
 
 <p class="var">logceis, logceid</p>
@@ -2006,13 +2030,21 @@ and 16-bit integer for <code>nativetostack16</code>.</p>
 
 <h2><a id="changelog"></a>V) Changelog</h2>
 
-<p><b>r31, 202x-xx-xx</b></p>
+<p><b>r32, 20xx-xx-xx</b></p>
 <ul>
-<li><code>bitdepth</code>/Vapoursynth: can work on clips of variable frame size. The function was already designed to handle this feature, but the parameter check was more strict than necessary. Thanks to Vardë for the report.</li>
-<li><code>resample</code>: fixed 14 to 16 bit AVX2 conversion path, thanks to NSQY for the report.</li>
-<li><code>resample</code>: fixed chroma placement: U and V vertical positions for interlaced PAL-DV were swapped and vertical subsampling &gt; 2 was not handled at all. Thanks to Chortos-2 for the report.</li>
+<li><code>transfer</code>: Fixed SMPTE ST 428-1 transfer function, thanks to Justin Arthur.</li>
+</ul>
+
+
+<p><b>r31, 2026-04-12</b></p>
+<ul>
+<li><code>bitdepth</code>/Vapoursynth: Can work on clips of variable frame size. The function was already designed to handle this feature, but the parameter check was more strict than necessary. Thanks to Vardë for the report.</li>
+<li><code>matrix</code>: Added the SMPTE ST 2128 IPT-PQ-C2 transform to and from L’M’S’.</li>
+<li><code>resample</code>: Fixed 14 to 16 bit AVX2 conversion path, thanks to NSQY for the report.</li>
+<li><code>resample</code>: Fixed chroma placement: U and V vertical positions for interlaced PAL-DV were swapped and vertical subsampling &gt; 2 was not handled at all. Thanks to Chortos-2 for the report.</li>
 <li><code>transfer</code>: Added L* transfer function.</li>
 <li><code>transfer</code>: Added Arri LogC4 transfer function.</li>
+<li><code>transfer</code>: Rescaled the S-Log3 curve to be used with limited-range code values, like the other S-Log curves.</li>
 <li><code>primaries</code>: Added Arri Wide Gamut 4 colorspace.</li>
 <li><code>primaries</code>: Fixed white XYZ coordinates for the NTSC-J colorspace (exact D93 location), thanks to Chortos-2 for the report.</li>
 <li>Program path without x86 SIMD: fixed wrong conversions affecting a lot of functions (noticed on ARM/Apple). Thanks to SaltyChiang for the fix.</li>
@@ -2094,7 +2126,7 @@ and 16-bit integer for <code>nativetostack16</code>.</p>
 <li><code>bitdepth</code>: added dithering <var>mode</var> 9: quasirandom sequences.</li>
 <li><code>bitdepth</code>: added a triangular probability distribution function (TPDF) for the dithering patterns and noises, along with the associated parameters <var>tpdfo</var> and <var>tpdfn</var>.</li>
 <li><code>bitdepth</code>: added <var>corplane</var> parameter to prevent colored noise in RGB processing.</li>
-<li><code>bitdepth</code>: fixed crash when trying to change the range (full or TV) without reducing the bitdepth.</li>
+<li><code>bitdepth</code>: fixed crash when trying to change the range (full or limited) without reducing the bitdepth.</li>
 <li><code>matrix</code>: deletes the <code>_Matrix</code> and <code>_ColorSpace</code> properties if a non-standard matrix is used.</li>
 <li><code>matrix2020cl</code>: sets the <code>_Matrix</code> and <code>_Transfer</code> frame properties.</li>
 <li><code>matrix2020cl</code>: fixed hideous colors when converting slightly out-of-colorspace values from integer Y’Cb’Cr’ to integer linear RGB.</li>

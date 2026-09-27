@@ -35,9 +35,15 @@
 #    else
 #        define VS_NOEXCEPT
 #    endif
+#    if __cplusplus >= 201402L || (defined(_MSC_VER) && _MSC_VER >= 1900)
+#        define VS_DEPRECATE(REASON) [[deprecated(REASON)]]
+#    else
+#        define VS_DEPRECATE(REASON)
+#    endif
 #else
 #    define VS_EXTERN_C
 #    define VS_NOEXCEPT
+#    define VS_DEPRECATE(REASON)
 #endif
 
 #if defined(_WIN32) && !defined(_WIN64)
@@ -579,7 +585,8 @@ Returns: A pointer to a structure describing the core. Its lifetime is the
 ==============================================================================
 */
 
-    const VSCoreInfo *(VS_CC *getCoreInfo)(VSCore *core) VS_NOEXCEPT; /* deprecated as of api 3.6, use getCoreInfo2 instead */
+    VS_DEPRECATE("getCoreInfo has been deprecated as of api 3.6, use getCoreInfo2 instead")
+    const VSCoreInfo *(VS_CC *getCoreInfo)(VSCore *core) VS_NOEXCEPT;
 
 
 
@@ -1518,7 +1525,8 @@ Returns:
 */
 
     VSFrameRef *(VS_CC *newVideoFrame2)(const VSFormat *format, int width, int height, const VSFrameRef **planeSrc, const int *planes, const VSFrameRef *propSrc, VSCore *core) VS_NOEXCEPT;
-    void (VS_CC *setMessageHandler)(VSMessageHandler handler, void *userData) VS_NOEXCEPT; /* deprecated as of api 3.6, use addMessageHandler and removeMessageHandler instead */
+    VS_DEPRECATE("setMessageHandler has been deprecated as of api 3.6, use addMessageHandler and removeMessageHandler instead")
+    void (VS_CC *setMessageHandler)(VSMessageHandler handler, void *userData) VS_NOEXCEPT;
     int (VS_CC *setThreadCount)(int threads, VSCore *core) VS_NOEXCEPT;
 
     const char *(VS_CC *getPluginPath)(const VSPlugin *plugin) VS_NOEXCEPT;
